@@ -15,7 +15,7 @@ def convert_stcs_for_adql(stcs):
     return adql
 
 
-def run_query(stcs, start_time, end_time, mission=None,
+def run_query(stcs, start_time=None, end_time=None, mission=None,
               service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=100):
     """
     Handler for TAP service
@@ -44,8 +44,9 @@ def run_query(stcs, start_time, end_time, mission=None,
 
     # TODO: add start/end time
     query = f"SELECT TOP {maxrec} * FROM dbo.ObsPointing " \
-            f"WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec), {convert_stcs_for_adql(stcs)}) AND " \
-            f"t_min >= {start_time} and t_max <= {end_time} "
+            f"WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec), {convert_stcs_for_adql(stcs)}) "
+    if start_time is not None:
+        query += f"AND t_min >= {start_time} and t_max <= {end_time} "
     if mission is not None:
         query += f"AND obs_collection = '{mission}' "
     print(query)
