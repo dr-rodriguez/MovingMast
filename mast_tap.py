@@ -5,7 +5,8 @@ import warnings
 warnings.simplefilter('ignore')  # block out warnings
 
 
-def run_query(stcs, start_time, end_time, service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=1000):
+def run_query(stcs, start_time, end_time, mission=None,
+              service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=1000):
     tap = vo.dal.TAPService(service)
 
     # TODO: write this

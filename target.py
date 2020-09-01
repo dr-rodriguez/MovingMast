@@ -11,6 +11,23 @@ def get_path(obj_name, times, location=None):
     return eph
 
 
-def convert_path_to_polygon(eph):
-    # TODO: Implement this
-    return
+def convert_path_to_polygon(eph, radius=0.0083):
+    """
+
+    Parameters
+    ----------
+    eph
+    radius : float
+        Width of path to build
+
+    Returns
+    -------
+
+    """
+
+    stcs = 'POLYGON '
+    for row in eph:
+        stcs += f"{row['RA']} {row['DEC']-radius} "
+        stcs += f"{row['RA']} {row['DEC']+radius} "
+
+    return stcs
