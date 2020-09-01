@@ -15,7 +15,7 @@ def convert_stcs_for_adql(stcs):
     return adql
 
 
-def run_query(stcs, start_time=None, end_time=None, mission=None,
+def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
               service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=100):
     """
     Handler for TAP service
