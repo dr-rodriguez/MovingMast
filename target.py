@@ -3,7 +3,8 @@
 from astroquery.jplhorizons import Horizons
 from polygon import check_direction, reverse_direction
 
-def get_path(obj_name, times, id_type, location=None):
+
+def get_path(obj_name, times, id_type='smallbody', location=None):
     """
 
     # See more details at https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html
@@ -47,7 +48,7 @@ def get_path(obj_name, times, id_type, location=None):
 
     """
 
-    obj = Horizons(id=obj_name, location=location, id_type=obj_type, epochs=times)
+    obj = Horizons(id=obj_name, location=location, id_type=id_type, epochs=times)
     eph = obj.ephemerides()
     return eph
 

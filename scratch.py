@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from bokeh.plotting import figure, output_file, show
 
 
-eph = get_path('599', times={'start':'2010-01-01', 'stop':'2010-01-10', 'step':'1d'})
+eph = get_path('599', id_type='smallbody', times={'start':'2010-01-01', 'stop':'2010-01-10', 'step':'1d'})
 stcs = convert_path_to_polygon(eph)
 
 patch_xs = parse_s_region(stcs)['ra']
@@ -33,5 +33,8 @@ plt.show()
 # plt.savefig('polygon.png')
 
 # Mast results
+start_time = min(eph['datetime_jd']) - 2400000.5
+end_time = max(eph['datetime_jd']) - 2400000.5
 results = run_tap_query(stcs, start_time=None, end_time=None, maxrec=100)
+# results = run_tap_query(stcs, start_time=start_time, end_time=end_time, maxrec=100)
 print(results)
