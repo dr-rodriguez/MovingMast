@@ -16,9 +16,10 @@ def convert_stcs_for_adql(stcs):
 
 
 def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
-              service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=100):
+                  service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=100,
+                  radius=0.0083):
     """
-    Handler for TAP service
+    Handler for TAP service. Will also call clean_up_results to run additional filters on TAP results
 
     Parameters
     ----------
@@ -34,6 +35,8 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
         Service to use (Default: STScI CAOMTAP)
     maxrec : int
         Number of records to return
+    radius : float
+        Radius to use for subsequent filtering of results, in degrees (Default: 0.0083)
 
     Returns
     -------
@@ -42,14 +45,13 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     """
     tap = vo.dal.TAPService(service)
 
-    # TODO: add start/end time
     query = f"SELECT TOP {maxrec} * FROM dbo.ObsPointing " \
             f"WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec), {convert_stcs_for_adql(stcs)}) "
     if start_time is not None:
         query += f"AND t_min >= {start_time} and t_max <= {end_time} "
     if mission is not None:
         query += f"AND obs_collection = '{mission}' "
-    print(query)
+    # print(query)
 
     # TODO: Decide: Sync vs Async queries
     results = tap.search(query, maxrec=maxrec)
@@ -60,13 +62,17 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     # Check job.phase until it is COMPLETED
     # results = job.fetch_result()
 
-    return results.to_table()
+    temp = results.to_table()
+    t = clean_up_results(temp, radius=radius)
+
+    return t
 
 
 def clean_up_results(t, radius=0.0083):
     """
     Function to clean up results. Will add a column for distance to target at that time
-    and will filter out those where the distance is too large
+    and will filter out those where the distance is too large.
+
     Parameters
     ----------
     t
@@ -77,4 +83,4 @@ def clean_up_results(t, radius=0.0083):
 
     """
 
-    return
+    return t
