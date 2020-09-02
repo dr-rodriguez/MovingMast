@@ -1,11 +1,12 @@
 
 from target import get_path, convert_path_to_polygon
 from polygon import parse_s_region
-from mast_tap import run_tap_query
-import matplotlib.pyplot as plt
-from bokeh.plotting import figure, output_file, show
+from mast_tap import run_tap_query, clean_up_results
 
-obj_name = '599'  # 599 Luisa (A906 HF)
+location = None
+
+# 599 Luisa (A906 HF)
+obj_name = '599'
 id_type = 'smallbody'
 times = {'start': '2010-01-01', 'stop': '2010-01-10', 'step': '1d'}
 
@@ -13,31 +14,10 @@ times = {'start': '2010-01-01', 'stop': '2010-01-10', 'step': '1d'}
 obj_name = '5'
 id_type = 'majorbody'
 times = {'start': '2019-04-01', 'stop': '2019-04-10', 'step': '1d'}
-eph = get_path(obj_name, id_type=id_type, times=times,location=None)
+# times = {'start': '1997-07-10', 'stop': '1997-07-15', 'step': '12h'}
+
+eph = get_path(obj_name, id_type=id_type, times=times, location=location)
 stcs = convert_path_to_polygon(eph)
-
-patch_xs = parse_s_region(stcs)['ra']
-patch_ys = parse_s_region(stcs)['dec']
-
-
-# Bokeh
-tools = 'pan, box_zoom, wheel_zoom, save, reset, resize'
-p = figure(plot_width=700)
-
-data = {'x': [patch_xs], 'y': [patch_ys]}
-p.patches('x', 'y', source=data, fill_alpha=0.1, line_color="black", line_width=0.5)
-
-output_file("test.html")
-show(p)
-
-# Matplotlib
-f, ax = plt.subplots(figsize=(8, 4))
-ax.plot(patch_xs, patch_ys)
-ax.scatter(patch_xs, patch_ys, edgecolors="black", marker='.', linestyle='solid', s=50, facecolors='black')
-for i in range(len(patch_xs)):
-    ax.text(patch_xs[i], patch_ys[i], str(i))
-plt.show()
-# plt.savefig('polygon.png')
 
 # Mast results
 start_time = min(eph['datetime_jd']) - 2400000.5
@@ -46,14 +26,27 @@ end_time = max(eph['datetime_jd']) - 2400000.5
 results = run_tap_query(stcs, start_time=start_time, end_time=end_time, maxrec=100)
 print(results)
 
+filtered_results = clean_up_results(results, obj_name=obj_name, id_type=id_type, location=location)
+print(filtered_results)
+
+
 # Using regions
+import matplotlib.pyplot as plt
 from astropy.coordinates import SkyCoord
-from regions import PixCoord, PolygonSkyRegion, PolygonPixelRegion
+from regions import PixCoord, PolygonSkyRegion, PolygonPixelRegion, CirclePixelRegion
+
+patch_xs = parse_s_region(stcs)['ra']
+patch_ys = parse_s_region(stcs)['dec']
 polygon_sky = PolygonSkyRegion(vertices=SkyCoord(patch_xs, patch_ys, unit='deg', frame='icrs'))
 
 # Treating as pixels for simplicity (and since I have no WCS)
 polygon_pix = PolygonPixelRegion(vertices=PixCoord(x=patch_xs, y=patch_ys))
 PixCoord(eph['RA'][1], eph['DEC'][1]) in polygon_pix
+radius=0.0083
+target_coords = PixCoord(eph['RA'][0], eph['DEC'][0])
+target_circle = CirclePixelRegion(center=target_coords, radius=radius)
+intersection = target_circle & polygon_pix
+# intersection.area # not implemented yet
 
 fig, ax = plt.subplots(figsize=(8, 4))
 patch = polygon_pix.as_artist(facecolor='none', edgecolor='red', lw=2)
