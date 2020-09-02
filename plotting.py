@@ -19,6 +19,8 @@ def notebook_bokeh(stcs):
                        x_start=patch_xs[0], y_start=patch_ys[0], 
                        x_end=patch_xs[1], y_end=patch_ys[1]))
 
+    p.y_range.flipped = True
+
     output_notebook()
     show(p)
     
@@ -31,6 +33,8 @@ def quick_bokeh(stcs, outfile='test.html'):
 
     data = {'x': [patch_xs], 'y': [patch_ys]}
     p.patches('x', 'y', source=data, fill_alpha=0.1, line_color="black", line_width=0.5)
+
+    p.y_range.flipped = True
 
     output_file(outfile)
     show(p)
