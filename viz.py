@@ -20,6 +20,29 @@ class MastQuery(param.Parameterized):
     id_type = pn.widgets.Select(name='Object Type', options=['majorbody', 'smallbody', 'asteroid_name',
                                                              'comet_name', 'name', 'designation'])
 
+    # Column selector
+    eph_cols = ['solar_presence', 'flags', 'RA_app', 'DEC_app', 'RA_rate', 'DEC_rate', 'AZ', 'EL',
+               'AZ_rate', 'EL_rate', 'sat_X',
+               'sat_Y', 'sat_PANG', 'siderealtime', 'airmass', 'magextinct', 'V', 'surfbright', 'illumination',
+               'illum_defect', 'sat_sep', 'sat_vis', 'ang_width', 'PDObsLon', 'PDObsLat', 'PDSunLon',
+               'PDSunLat', 'SubSol_ang', 'SubSol_dist', 'NPole_ang', 'NPole_dist', 'EclLon', 'EclLat', 'r',
+               'r_rate', 'delta', 'delta_rate', 'lighttime', 'vel_sun', 'vel_obs', 'elong', 'elongFlag',
+               'alpha', 'lunar_elong', 'lunar_illum', 'sat_alpha', 'sunTargetPA', 'velocityPA',
+               'OrbPlaneAng', 'constellation', 'TDB-UT', 'ObsEclLon', 'ObsEclLat', 'NPole_RA', 'NPole_DEC',
+               'GlxLon', 'GlxLat', 'solartime', 'earth_lighttime', 'RA_3sigma', 'DEC_3sigma', 'SMAA_3sigma',
+               'SMIA_3sigma', 'Theta_3sigma', 'Area_3sigma', 'RSS_3sigma', 'r_3sigma', 'r_rate_3sigma',
+               'SBand_3sigma', 'XBand_3sigma', 'DoppDelay_3sigma', 'true_anom', 'hour_angle',
+               'alpha_true', 'PABLon', 'PABLat']
+    eph_col_choice = pn.widgets.MultiChoice(name="Choose Extra Columns", options=eph_cols)
+
+    mast_cols = ['calib_level', 's_ra',
+                 's_dec', 't_min', 't_max', 'wavelength_region', 'em_min',
+                 'em_max', 'target_classification', 'obs_title', 't_obs_release',
+                 'proposal_id', 'proposal_type', 'project', 'sequence_number',
+                 'provenance_name', 's_region', 'jpegURL', 'dataURL', 'dataRights', 'mtFlag',
+                 'srcDen', 'intentType', 'obsID', 'objID', 't_mid']
+    mast_col_choice = pn.widgets.MultiChoice(name="Choose Extra Columns", options=mast_cols)
+
     # Actions
     ephem_button = param.Action(lambda x: x.param.trigger('ephem_button'), label='Fetch Ephemerides')
     tap_button = param.Action(lambda x: x.param.trigger('tap_button'), label='Fetch MAST Results')
@@ -33,11 +56,13 @@ class MastQuery(param.Parameterized):
             return pn.pane.Markdown('## Provide the name or identifier of an object to search for.')
         times = {'start': self.start_time.value, 'stop': self.stop_time.value, 'step': self.time_step.value}
         try:
+            req_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC']
+            cols = req_cols + self.eph_col_choice.value
             self.eph = get_path(self.obj_name.value, times, id_type=self.id_type.value, location=None)
             self.stcs = convert_path_to_polygon(self.eph)
         except ValueError as e:
             return pn.pane.Markdown(f'{e}')
-        return self.eph.show_in_notebook(display_length=5)
+        return self.eph[cols].show_in_notebook(display_length=10)
 
     @param.depends('tap_button')
     def get_mast(self):
@@ -48,7 +73,10 @@ class MastQuery(param.Parameterized):
         temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time, maxrec=100)
         self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
                                         id_type=self.id_type.value, location=None)
-        return self.results.show_in_notebook(display_length=20)
+        req_cols = ['obs_id', 'obs_collection', 'target_name', 'dataProduct_Type', 'instrument_name',
+                    'filters', 't_exptime', 'proposal_pi']
+        cols = req_cols + self.mast_col_choice.value
+        return self.results[cols].show_in_notebook(display_length=10)
 
     # Panel displays
     def panel(self):
@@ -57,8 +85,12 @@ class MastQuery(param.Parameterized):
         row2 = pn.Row(self.start_time, self.stop_time, self.time_step)
         button_row = pn.Row(self.param['ephem_button'], self.param['tap_button'])
         mypanel = pn.Column(title, row1, row2, button_row,
-                            pn.Tabs(('Ephemerides', self.get_ephem),
-                                    ('MAST Results', self.get_mast)))
+                            pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
+                                                              self.get_ephem)),
+                                    ('MAST Results', pn.Column(self.mast_col_choice,
+                                                               self.get_mast))
+                                    )
+                            )
         return mypanel
 
 
