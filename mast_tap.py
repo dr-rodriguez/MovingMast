@@ -185,7 +185,10 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
 def get_files(t_init, obs_id=''):
     t = t_init.copy()
     obs_list = obs_id.split(',')
+    obs_list = [x.strip() for x in obs_list]
     mask = [x in obs_list for x in t['obs_id']]
     t = t[mask]
     data_products_by_id = Observations.get_product_list(t['obsID'].astype(str))
+    # data_products_by_id['Download'] = [f'<a href="https://mast.stsci.edu/portal/api/v0.1/Download/file?uri={x}">Download</a>'
+    #                                    for x in data_products_by_id['dataURI']]
     return data_products_by_id
