@@ -118,6 +118,14 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
 
     # Ephemerides results are sorted by time, hence the initial sort
     print('Verifying footprints...')
+
+    # Fix for TESS
+    if location is not None and location.upper() == '@TESS':
+        print('Restriction for TESS observations')
+        threshold = 2456778.50000  # 2018-05-01
+        ind = t['t_mid'] > threshold
+        t = t[ind]
+
     eph = Horizons(id=obj_name, location=location, id_type=id_type, epochs=t['t_mid']).ephemerides()
 
     # For each row in table, check s_region versus target position at mid-time
