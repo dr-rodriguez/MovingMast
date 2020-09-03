@@ -2,40 +2,39 @@
 
 from astroquery.jplhorizons import Horizons
 from polygon import check_direction, reverse_direction
+import time
 from datetime import timedelta, datetime
 
-def check_times(times):
-	"""
 
-	Checks that the times are within a specified maximum range.
+def check_times(times, maximum_date_range=30):
+    """
+    Checks that the times are within a specified maximum range.
 
-	Parameter
-	---------
+    Parameter
+    ---------
 
-	times: float or dict
-		Times to check, input as a float or specified start/stop/step
-		(example: {'start':'2019-01-01', 'stop':'2019-12-31', 'step':'1d'})
+    times: float or dict
+        Times to check, input as a float or specified start/stop/step
+        (example: {'start':'2019-01-01', 'stop':'2019-12-31', 'step':'1d'})
+    maximum_date_range: int
+        Maximum range to accept
 
-	Returns
-	-------
+    Returns
+    -------
 
-	check: bool
-		True or False value for appropriate range
+    check: bool
+        True or False value for appropriate range
+    """
 
-
-	"""
-
-	maximum_date_range = 30 #In days
-
-	if isinstance(times, float):
-		return True
-	elif isinstance(times, dict):
-		start = datetime.strptime(times['start'], '%Y-%m-%d')
-		stop = datetime.strptime(times['stop'], '%Y-%m-%d')
-		rang = stop - start
-		return rang <= timedelta(maximum_date_range)
-	else:
-		raise Exception("Sorry, enter time as float or dict")
+    if isinstance(times, float):
+        return True
+    elif isinstance(times, dict):
+        start = datetime.strptime(times['start'], '%Y-%m-%d')
+        stop = datetime.strptime(times['stop'], '%Y-%m-%d')
+        rang = stop - start
+        return rang <= timedelta(maximum_date_range)
+    else:
+        raise Exception("Sorry, enter time as float or dict")
 
 
 def get_path(obj_name, times, id_type='smallbody', location=None):
@@ -114,3 +113,11 @@ def convert_path_to_polygon(eph, radius=0.0083):
         stcs = reverse_direction(stcs)
 
     return stcs
+
+
+def check(date):
+    try:
+        _ = time.strptime(date, '%Y-%m-%d')
+    except ValueError:
+        return False
+    return True
