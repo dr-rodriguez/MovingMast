@@ -1,0 +1,9 @@
+# Observable in both Kepler/K2 and TESS
+# These are main-belt asteroids and Jupiter Trojans
+# See Pal et al. 2020 (https://arxiv.org/pdf/2001.05822.pdf)
+(24534) 2001 CX27
+(24537) 2001 CB35
+(37750) 1997 BZ
+(42573) 1997 AN1
+(45086) 1999 XE46
+(65210) Stichius
