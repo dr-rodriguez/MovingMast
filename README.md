@@ -19,3 +19,12 @@ Then activate this environment as:
 ```bash
 conda activate moving-mast
 ```
+
+### Run it
+
+Either start a Jupyter notebook and load DemoInterface2.ipynb
+
+Or from the terminal run:
+```bash
+panel serve --show DemoInterface2.ipynb
+```
