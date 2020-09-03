@@ -2,6 +2,7 @@
 
 from astroquery.jplhorizons import Horizons
 from polygon import check_direction, reverse_direction
+import time
 
 
 def get_path(obj_name, times, id_type='smallbody', location=None):
@@ -80,3 +81,11 @@ def convert_path_to_polygon(eph, radius=0.0083):
         stcs = reverse_direction(stcs)
 
     return stcs
+
+
+def check(date):
+    try:
+      valid_date = time.strptime(date, '%Y-%m-%d')
+    except ValueError:
+        return False
+    return True
