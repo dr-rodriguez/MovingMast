@@ -20,6 +20,10 @@ class MastQuery(param.Parameterized):
     time_step = pn.widgets.TextInput(name="Time Step", value='1d')
     id_type = pn.widgets.Select(name='Object Type', options=['majorbody', 'smallbody', 'asteroid_name',
                                                              'comet_name', 'name', 'designation'])
+    max_rec = pn.widgets.TextInput(name="Maximum number of MAST records", value='200')
+    mission = pn.widgets.TextInput(name="Mission filter for MAST queries (Default of None=all missions)", value='None')
+    radius = pn.widgets.TextInput(name="Footprint radius/width (degrees)", value='0.0083')
+    location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
 
     # Column selector
     eph_cols = ['solar_presence', 'flags', 'RA_app', 'DEC_app', 'RA_rate', 'DEC_rate', 'AZ', 'EL',
@@ -57,10 +61,14 @@ class MastQuery(param.Parameterized):
             return pn.pane.Markdown('## Provide the name or identifier of an object to search for.')
         times = {'start': self.start_time.value, 'stop': self.stop_time.value, 'step': self.time_step.value}
         try:
+            radius = float(self.radius.value)
+            location = self.location.value
+            if location.lower() == 'none':
+                location = None
             req_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC']
             cols = req_cols + self.eph_col_choice.value
-            self.eph = get_path(self.obj_name.value, times, id_type=self.id_type.value, location=None)
-            self.stcs = convert_path_to_polygon(self.eph)
+            self.eph = get_path(self.obj_name.value, times, id_type=self.id_type.value, location=location)
+            self.stcs = convert_path_to_polygon(self.eph, radius=radius)
             self.results = None
         except ValueError as e:
             return pn.pane.Markdown(f'{e}')
@@ -73,9 +81,17 @@ class MastQuery(param.Parameterized):
         start_time = min(self.eph['datetime_jd']) - 2400000.5
         end_time = max(self.eph['datetime_jd']) - 2400000.5
         try:
-            temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time, maxrec=100)
+            maxrec = int(self.max_rec.value)
+            location = self.location.value
+            mission = self.mission.value
+            if location.lower() == 'none':
+                location = None
+            if mission.lower() == 'none':
+                mission = None
+            temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
+                                         maxrec=maxrec, mission=mission)
             self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
-                                            id_type=self.id_type.value, location=None)
+                                            id_type=self.id_type.value, location=location)
             req_cols = ['obs_id', 'obs_collection', 'target_name', 'dataProduct_Type', 'instrument_name',
                         'filters', 't_exptime', 'proposal_pi']
             cols = req_cols + self.mast_col_choice.value
@@ -99,6 +115,9 @@ class MastQuery(param.Parameterized):
         return pn.pane.Bokeh(p)
 
     # Panel displays
+    def additional_parameters(self):
+        return pn.Column(self.max_rec, self.mission, self.radius, self.location)
+
     def panel(self, debug=False):
         title = pn.pane.Markdown('# Search MAST for Moving Targets')
         row1 = pn.Row(self.obj_name, self.id_type)
@@ -108,7 +127,8 @@ class MastQuery(param.Parameterized):
                                                         self.get_ephem)),
                               ('MAST Results', pn.Column(self.mast_col_choice,
                                                          self.get_mast)),
-                              ('MAST Plot', self.mast_figure)
+                              ('MAST Plot', self.mast_figure),
+                              ('Additional Parameters', self.additional_parameters)
                               )
         if debug:
             output_tabs.append(('Debug', self.fetch_stcs))
