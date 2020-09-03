@@ -2,6 +2,40 @@
 
 from astroquery.jplhorizons import Horizons
 from polygon import check_direction, reverse_direction
+from datetime import timedelta, datetime
+
+def check_times(times):
+	"""
+
+	Checks that the times are within a specified maximum range.
+
+	Parameter
+	---------
+
+	times: float or dict
+		Times to check, input as a float or specified start/stop/step
+		(example: {'start':'2019-01-01', 'stop':'2019-12-31', 'step':'1d'})
+
+	Returns
+	-------
+
+	check: bool
+		True or False value for appropriate range
+
+
+	"""
+
+	maximum_date_range = 30 #In days
+
+	if isinstance(times, float):
+		return True
+	elif isinstance(times, dict):
+		start = datetime.strptime(times['start'], '%Y-%m-%d')
+		stop = datetime.strptime(times['stop'], '%Y-%m-%d')
+		rang = stop - start
+		return rang <= timedelta(maximum_date_range)
+	else:
+		raise Exception("Sorry, enter time as float or dict")
 
 
 def get_path(obj_name, times, id_type='smallbody', location=None):
