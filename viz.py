@@ -21,7 +21,7 @@ class MastQuery(param.Parameterized):
     id_type = pn.widgets.Select(name='Object Type', options=['majorbody', 'smallbody', 'asteroid_name',
                                                              'comet_name', 'name', 'designation'])
     max_rec = pn.widgets.TextInput(name="Maximum number of MAST records", value='200')
-    mission = pn.widgets.TextInput(name="Mission filter for MAST queries (Default of None=all missions)", value='None')
+    mission = pn.widgets.TextInput(name="Comma-separated mission filter (Default of None=all missions)", value='None')
     radius = pn.widgets.TextInput(name="Footprint radius/width (degrees)", value='0.0083')
     location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
 
@@ -45,7 +45,7 @@ class MastQuery(param.Parameterized):
                  'em_max', 'target_classification', 'obs_title', 't_obs_release',
                  'proposal_id', 'proposal_type', 'project', 'sequence_number',
                  'provenance_name', 's_region', 'jpegURL', 'dataURL', 'dataRights', 'mtFlag',
-                 'srcDen', 'intentType', 'obsID', 'objID', 't_mid']
+                 'srcDen', 'intentType', 'obsID', 'objID', 't_mid', 'obs_mid_date', 'start_date', 'end_date']
     mast_col_choice = pn.widgets.MultiChoice(name="Choose Extra Columns", options=mast_cols)
 
     # Actions

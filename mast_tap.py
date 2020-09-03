@@ -52,7 +52,9 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     if start_time is not None:
         query += f"AND t_min >= {start_time} and t_max <= {end_time} "
     if mission is not None:
-        query += f"AND obs_collection = '{mission}' "
+        mission_list = mission.split(',')
+        mission_string = ','.join([f"'{x}'" for x in mission_list])
+        query += f"AND obs_collection in ({mission_string}) "
     # print(query)
 
     # TODO: Decide: Sync vs Async queries
@@ -71,8 +73,9 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     if len(t) > 0:
         # Add mid-point time in both jd and iso
         t['t_mid'] = (t['t_max'] + t['t_min']) / 2 + 2400000.5
-        mid_dates = Time(t['t_mid'], format='jd')
-        t['obs_mid_date'] = mid_dates.iso
+        t['obs_mid_date'] = Time(t['t_mid'], format='jd').iso
+        t['start_date'] = Time(t['t_min'], format='mjd').iso
+        t['end_date'] = Time(t['t_max'], format='mjd').iso
 
     return t
 
@@ -123,6 +126,7 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
     t = t_init.copy()
 
     # Sort by mid point time
+    t['t_mid'] = (t['t_max'] + t['t_min']) / 2 + 2400000.5
     t.sort('t_mid')
 
     # Ephemerides results are sorted by time, hence the initial sort
