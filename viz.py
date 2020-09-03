@@ -61,6 +61,7 @@ class MastQuery(param.Parameterized):
             cols = req_cols + self.eph_col_choice.value
             self.eph = get_path(self.obj_name.value, times, id_type=self.id_type.value, location=None)
             self.stcs = convert_path_to_polygon(self.eph)
+            self.results = None
         except ValueError as e:
             return pn.pane.Markdown(f'{e}')
         return self.eph[cols].show_in_notebook(display_length=10)
@@ -71,12 +72,15 @@ class MastQuery(param.Parameterized):
             return pn.pane.Markdown('## Fetch an ephemerides first and then run the MAST query.')
         start_time = min(self.eph['datetime_jd']) - 2400000.5
         end_time = max(self.eph['datetime_jd']) - 2400000.5
-        temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time, maxrec=100)
-        self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
-                                        id_type=self.id_type.value, location=None)
-        req_cols = ['obs_id', 'obs_collection', 'target_name', 'dataProduct_Type', 'instrument_name',
-                    'filters', 't_exptime', 'proposal_pi']
-        cols = req_cols + self.mast_col_choice.value
+        try:
+            temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time, maxrec=100)
+            self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
+                                            id_type=self.id_type.value, location=None)
+            req_cols = ['obs_id', 'obs_collection', 'target_name', 'dataProduct_Type', 'instrument_name',
+                        'filters', 't_exptime', 'proposal_pi']
+            cols = req_cols + self.mast_col_choice.value
+        except Exception as e:
+            return pn.pane.Markdown(f'{e}')
         return self.results[cols].show_in_notebook(display_length=10)
 
     @param.depends('stcs')
