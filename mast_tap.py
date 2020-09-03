@@ -6,6 +6,7 @@ from astropy.time import Time
 from astroquery.jplhorizons import Horizons
 from regions import PixCoord, PolygonPixelRegion, CirclePixelRegion
 from polygon import parse_s_region
+from astroquery.mast import Observations
 warnings.simplefilter('ignore')  # block out warnings
 
 
@@ -71,6 +72,11 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
 
     # Add extra columns
     if len(t) > 0:
+        # Decode bytes columns
+        for col in t.colnames:
+            if isinstance(t[col][0], bytes):
+                t[col] = [x.decode() for x in t[col]]
+
         # Add mid-point time in both jd and iso
         t['t_mid'] = (t['t_max'] + t['t_min']) / 2 + 2400000.5
         t['obs_mid_date'] = Time(t['t_mid'], format='jd').iso
@@ -123,6 +129,9 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
         Astropy Table with only those where the moving target was in the footprint
     """
 
+    if len(t_init) == 0:
+        return None
+
     t = t_init.copy()
 
     # Sort by mid point time
@@ -171,3 +180,12 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
     t['in_footprint'] = check_list
 
     return t[t['in_footprint']]
+
+
+def get_files(t_init, obs_id=''):
+    t = t_init.copy()
+    obs_list = obs_id.split(',')
+    mask = [x in obs_list for x in t['obs_id']]
+    t = t[mask]
+    data_products_by_id = Observations.get_product_list(t['obsID'].astype(str))
+    return data_products_by_id

@@ -2,7 +2,7 @@
 
 import panel as pn
 import param
-from mast_tap import run_tap_query, clean_up_results
+from mast_tap import run_tap_query, clean_up_results, get_files
 from target import get_path, convert_path_to_polygon
 from plotting import polygon_bokeh, mast_bokeh
 
@@ -24,6 +24,7 @@ class MastQuery(param.Parameterized):
     mission = pn.widgets.TextInput(name="Comma-separated mission filter (Default of None=all missions)", value='None')
     radius = pn.widgets.TextInput(name="Footprint radius/width (degrees)", value='0.0083')
     location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
+    obs_ids = pn.widgets.TextInput(name="Observations to search files for (obs_id)", value='')
 
     # Column selector
     eph_cols = ['solar_presence', 'flags', 'RA_app', 'DEC_app', 'RA_rate', 'DEC_rate', 'AZ', 'EL',
@@ -51,6 +52,7 @@ class MastQuery(param.Parameterized):
     # Actions
     ephem_button = param.Action(lambda x: x.param.trigger('ephem_button'), label='Fetch Ephemerides')
     tap_button = param.Action(lambda x: x.param.trigger('tap_button'), label='Fetch MAST Results')
+    product_button = param.Action(lambda x: x.param.trigger('product_button'), label='Fetch MAST Files')
 
     # Callback functions
     @param.depends('ephem_button')
@@ -58,7 +60,7 @@ class MastQuery(param.Parameterized):
         if self.obj_name.value == '':
             self.eph = None
             self.stcs = None
-            return pn.pane.Markdown('## Provide the name or identifier of an object to search for.')
+            return pn.pane.Markdown('Provide the name or identifier of an object to search for.')
         times = {'start': self.start_time.value, 'stop': self.stop_time.value, 'step': self.time_step.value}
         try:
             radius = float(self.radius.value)
@@ -77,7 +79,7 @@ class MastQuery(param.Parameterized):
     @param.depends('tap_button')
     def get_mast(self):
         if self.eph is None or self.stcs is None:
-            return pn.pane.Markdown('## Fetch ephemerides first and then run the MAST query.')
+            return pn.pane.Markdown('Fetch ephemerides first and then run the MAST query.')
         start_time = min(self.eph['datetime_jd']) - 2400000.5
         end_time = max(self.eph['datetime_jd']) - 2400000.5
         try:
@@ -107,10 +109,24 @@ class MastQuery(param.Parameterized):
         return pn.Column(pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```'),
                          pn.pane.Bokeh(p))
 
+    @param.depends('product_button')
+    def get_products(self):
+        if self.eph is None or self.results is None:
+            return pn.pane.Markdown('Fetch ephemerides first and then run the MAST query.')
+        if len(self.results) == 0:
+            return pn.pane.Markdown(f'No MAST results to get.')
+        if self.obs_ids.value is None or self.obs_ids.value == '':
+            return pn.pane.Markdown(f'No observations selected.')
+        file_list = get_files(self.results, self.obs_ids.value)
+        if file_list is not None and len(file_list) > 0:
+            return file_list.show_in_notebook(display_length=10)
+        else:
+            return pn.pane.Markdown(f'No results found.')
+
     @param.depends('eph', 'stcs', 'results')
     def mast_figure(self):
         if self.eph is None or self.results is None:
-            return pn.pane.Markdown('## Fetch ephemerides first and then run the MAST query.')
+            return pn.pane.Markdown('Fetch ephemerides first and then run the MAST query.')
         if len(self.results) == 0:
             return pn.pane.Markdown(f'No MAST results to display.')
         try:
@@ -134,6 +150,8 @@ class MastQuery(param.Parameterized):
                               ('MAST Results', pn.Column(self.mast_col_choice,
                                                          self.get_mast)),
                               ('MAST Plot', self.mast_figure),
+                              ('MAST Files', pn.Column(self.obs_ids, self.param['product_button'],
+                                                       self.get_products)),
                               ('Additional Parameters', self.additional_parameters)
                               )
         if debug:
