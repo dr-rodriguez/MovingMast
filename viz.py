@@ -77,7 +77,7 @@ class MastQuery(param.Parameterized):
     @param.depends('tap_button')
     def get_mast(self):
         if self.eph is None or self.stcs is None:
-            return pn.pane.Markdown('## Fetch an ephemerides first and then run the MAST query.')
+            return pn.pane.Markdown('## Fetch ephemerides first and then run the MAST query.')
         start_time = min(self.eph['datetime_jd']) - 2400000.5
         end_time = max(self.eph['datetime_jd']) - 2400000.5
         try:
@@ -102,7 +102,7 @@ class MastQuery(param.Parameterized):
     @param.depends('stcs')
     def fetch_stcs(self):
         if self.stcs is None:
-            return pn.pane.Markdown('## Fetch an ephemerides first.')
+            return pn.pane.Markdown('## Fetch ephemerides first.')
         p = polygon_bokeh(self.stcs, display=False)
         return pn.Column(pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```'),
                          pn.pane.Bokeh(p))
@@ -110,7 +110,7 @@ class MastQuery(param.Parameterized):
     @param.depends('eph', 'stcs', 'results')
     def mast_figure(self):
         if self.eph is None or self.results is None:
-            return pn.pane.Markdown('## Fetch an ephemerides first and then run the MAST query.')
+            return pn.pane.Markdown('## Fetch ephemerides first and then run the MAST query.')
         p = mast_bokeh(self.eph, self.results, self.stcs, display=False)
         return pn.pane.Bokeh(p)
 
@@ -119,6 +119,7 @@ class MastQuery(param.Parameterized):
         return pn.Column(self.max_rec, self.mission, self.radius, self.location)
 
     def panel(self, debug=False):
+
         title = pn.pane.Markdown('# Search MAST for Moving Targets')
         row1 = pn.Row(self.obj_name, self.id_type)
         row2 = pn.Row(self.start_time, self.stop_time, self.time_step)
@@ -132,6 +133,13 @@ class MastQuery(param.Parameterized):
                               )
         if debug:
             output_tabs.append(('Debug', self.fetch_stcs))
+
+        # gspec = pn.GridSpec(sizing_mode='stretch_both')
+        # gspec[:1, :3] = title
+        # gspec[2, :3] = row1
+        # gspec[3, :3] = row2
+        # gspec[4, :3] = button_row
+        # gspec[5, :3] = output_tabs
         mypanel = pn.Column(title, pn.layout.Divider(),
                             row1, row2, button_row,
                             output_tabs)
