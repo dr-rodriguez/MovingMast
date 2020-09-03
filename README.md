@@ -10,13 +10,12 @@ Prototype interface/workflow to search for moving targets in the MAST Archive
 
 From top level directory:
 
-.. code-block:: bash
-
-   $ conda env create -f env.yml
-
+```bash
+conda env create -f env.yml
+```
 
 Then activate this environment as:
 
-.. code-block:: bash
-
-   $ conda activate moving-mast
+```bash
+conda activate moving-mast
+```
