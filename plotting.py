@@ -2,9 +2,9 @@
 
 from bokeh.plotting import figure, output_file, show, output_notebook
 from polygon import parse_s_region
-from bokeh.models import Arrow, VeeHead
-from bokeh.models import HoverTool
-from bokeh.palettes import Spectral4
+from bokeh.layouts import column
+from bokeh.models import Arrow, VeeHead, HoverTool, Slider
+from bokeh.palettes import Spectral7 as palette
 import matplotlib.pyplot as plt
 
 
@@ -87,7 +87,7 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
 
     # Loop over missions, coloring each separately
     mast_plots = []
-    for mission, color in zip(obsDF['obs_collection'].unique(), Spectral4):
+    for mission, color in zip(obsDF['obs_collection'].unique(), palette):
         ind = obsDF['obs_collection'] == mission
 
         # Add patches with the observation footprings
@@ -99,7 +99,7 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
                 'target_name': obsDF['target_name'][ind], 'proposal_pi': obsDF['proposal_pi'][ind],
                 'obs_mid_date': obsDF['obs_mid_date'][ind], 'filters': obsDF['filters'][ind]}
         mast_plots.append(p.patches('x', 'y', source=data, legend=mission,
-                                    fill_color=color, fill_alpha=0.1, line_color="white", line_width=0.5))
+                                    fill_color=color, fill_alpha=0.3, line_color="white", line_width=0.5))
 
     # Add hover tooltip for MAST observations
     tooltip = [("obs_id", "@obs_id"),
@@ -113,8 +113,14 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
     p.legend.click_policy = "hide"
     p.x_range.flipped = True
 
+    # Slider for alpha settings
+    slider = Slider(start=0, end=1, step=0.01, value=0.3, title="Footprint opacity")
+    for i in range(len(mast_plots)):
+        slider.js_link('value', mast_plots[i].glyph, 'fill_alpha')
+    final = column(p, slider)
+
     if display:
         output_notebook()
-        show(p)
+        show(final)
     else:
-        return p
+        return final

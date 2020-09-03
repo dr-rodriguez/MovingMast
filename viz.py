@@ -15,8 +15,8 @@ class MastQuery(param.Parameterized):
 
     # Widgets
     obj_name = pn.widgets.TextInput(name="Object Name or Specification", value='')
-    start_time = pn.widgets.TextInput(name="Start Time", value='2019-04-01')
-    stop_time = pn.widgets.TextInput(name="Stop Time", value='2019-04-10')
+    start_time = pn.widgets.TextInput(name="Start Time", value='1995-07-17')
+    stop_time = pn.widgets.TextInput(name="Stop Time", value='1995-07-30')
     time_step = pn.widgets.TextInput(name="Time Step", value='1d')
     id_type = pn.widgets.Select(name='Object Type', options=['majorbody', 'smallbody', 'asteroid_name',
                                                              'comet_name', 'name', 'designation'])
