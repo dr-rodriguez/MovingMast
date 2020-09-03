@@ -114,17 +114,16 @@ class MastQuery(param.Parameterized):
         if debug:
             output_tabs.append(('Debug', self.fetch_stcs))
 
-        gspec = pn.GridSpec(width=800, height=400)
-        gspec[:1, :3] = title
-        gspec[2, :3] = row1
-        gspec[3, :3] = row2
-        gspec[4, :3] = button_row
-        gspec[5, :3] = output_tabs
-        '''
+        # gspec = pn.GridSpec(sizing_mode='stretch_both')
+        # gspec[:1, :3] = title
+        # gspec[2, :3] = row1
+        # gspec[3, :3] = row2
+        # gspec[4, :3] = button_row
+        # gspec[5, :3] = output_tabs
         mypanel = pn.Column(title, pn.layout.Divider(),
                             row1, row2, button_row,
-                            output_tabs)'''
-        return gspec
+                            output_tabs)
+        return mypanel
 
 
 def query_mast():
