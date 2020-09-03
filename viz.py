@@ -111,7 +111,12 @@ class MastQuery(param.Parameterized):
     def mast_figure(self):
         if self.eph is None or self.results is None:
             return pn.pane.Markdown('## Fetch ephemerides first and then run the MAST query.')
-        p = mast_bokeh(self.eph, self.results, self.stcs, display=False)
+        if len(self.results) == 0:
+            return pn.pane.Markdown(f'No MAST results to display.')
+        try:
+            p = mast_bokeh(self.eph, self.results, self.stcs, display=False)
+        except Exception as e:
+            return pn.pane.Markdown(f'{e}')
         return pn.pane.Bokeh(p)
 
     # Panel displays
