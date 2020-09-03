@@ -87,7 +87,7 @@ class MastQuery(param.Parameterized):
         return pn.Column(pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```'),
                          pn.pane.Bokeh(p))
 
-    @param.depends('stcs', 'results')
+    @param.depends('eph', 'stcs', 'results')
     def mast_figure(self):
         if self.eph is None or self.results is None:
             return pn.pane.Markdown('## Fetch an ephemerides first and then run the MAST query.')

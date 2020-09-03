@@ -64,8 +64,10 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
 
     # Target path
     eph_data = {'eph_x': eph['RA'], 'eph_y': eph['DEC'], 'Date': eph['datetime_str']}
-    eph_plot1 = p.line(x='eph_x', y='eph_y', source=eph_data, line_width=2, line_color='black')
-    eph_plot2 = p.circle(x='eph_x', y='eph_y', source=eph_data, fill_color="black", size=12)
+    eph_plot1 = p.line(x='eph_x', y='eph_y', source=eph_data, line_width=2,
+                       line_color='black', legend=eph['targetname'][0])
+    eph_plot2 = p.circle(x='eph_x', y='eph_y', source=eph_data, fill_color="black",
+                         size=12, legend=eph['targetname'][0])
     p.add_tools(HoverTool(renderers=[eph_plot1, eph_plot2], tooltips=[('Date', "@Date")]))
 
     # Target footprint
