@@ -2,6 +2,7 @@
 
 import pyvo as vo
 import warnings
+from astropy.time import Time
 from astroquery.jplhorizons import Horizons
 from regions import PixCoord, PolygonPixelRegion, CirclePixelRegion
 from polygon import parse_s_region
@@ -64,7 +65,16 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     # Check job.phase until it is COMPLETED
     # results = job.fetch_result()
 
-    return results.to_table()
+    t = results.to_table()
+
+    # Add extra columns
+    if len(t) > 0:
+        # Add mid-point time in both jd and iso
+        t['t_mid'] = (t['t_max'] + t['t_min']) / 2 + 2400000.5
+        mid_dates = Time(t['t_mid'], format='jd')
+        t['obs_mid_date'] = mid_dates.iso
+
+    return t
 
 
 def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radius=0.0083):
@@ -112,8 +122,7 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
 
     t = t_init.copy()
 
-    # Add mid-point time and sort by that first
-    t['t_mid'] = (t['t_max'] + t['t_min'])/2 + 2400000.5
+    # Sort by mid point time
     t.sort('t_mid')
 
     # Ephemerides results are sorted by time, hence the initial sort

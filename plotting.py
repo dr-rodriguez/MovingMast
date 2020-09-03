@@ -96,15 +96,17 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
 
         data = {'x': patch_xs, 'y': patch_ys, 'obs_collection': obsDF['obs_collection'][ind],
                 'instrument_name': obsDF['instrument_name'][ind], 'obs_id': obsDF['obs_id'][ind],
-                'target_name': obsDF['target_name'][ind], 'proposal_pi': obsDF['proposal_pi'][ind]}
+                'target_name': obsDF['target_name'][ind], 'proposal_pi': obsDF['proposal_pi'][ind],
+                'obs_mid_date': obsDF['obs_mid_date'][ind], 'filters': obsDF['filters'][ind]}
         mast_plots.append(p.patches('x', 'y', source=data, legend=mission,
                                     fill_color=color, fill_alpha=0.1, line_color="white", line_width=0.5))
 
     # Add hover tooltip for MAST observations
-    tooltip = [("instrument_name", "@instrument_name"),
-               ("obs_id", "@obs_id"),
+    tooltip = [("obs_id", "@obs_id"),
                ("target_name", "@target_name"),
-               ('proposal_pi', '@proposal_pi')]
+               ("instrument_name", "@instrument_name"),
+               ("filters", "@filters"),
+               ('obs_mid_date', '@obs_mid_date')]
     p.add_tools(HoverTool(renderers=mast_plots, tooltips=tooltip))
 
     # Additional settings
