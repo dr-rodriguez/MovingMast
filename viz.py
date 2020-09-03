@@ -4,6 +4,7 @@ import panel as pn
 import param
 from mast_tap import run_tap_query, clean_up_results
 from target import get_path, convert_path_to_polygon
+from plotting import polygon_bokeh
 
 
 class MastQuery(param.Parameterized):
@@ -80,7 +81,11 @@ class MastQuery(param.Parameterized):
 
     @param.depends('stcs')
     def fetch_stcs(self):
-        return pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```')
+        if self.stcs is None:
+            return pn.pane.Markdown('## Fetch an ephemerides first.')
+        p = polygon_bokeh(self.stcs, display=False)
+        return pn.Column(pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```'),
+                         pn.pane.Bokeh(p))
 
     # Panel displays
     def panel(self, debug=False):

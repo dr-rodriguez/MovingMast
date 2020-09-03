@@ -6,7 +6,7 @@ from bokeh.models import Arrow, VeeHead
 import matplotlib.pyplot as plt
 
 
-def notebook_bokeh(stcs):
+def polygon_bokeh(stcs, display=True):
     patch_xs = parse_s_region(stcs)['ra']
     patch_ys = parse_s_region(stcs)['dec']
 
@@ -21,8 +21,11 @@ def notebook_bokeh(stcs):
 
     p.y_range.flipped = True
 
-    output_notebook()
-    show(p)
+    if display:
+        output_notebook()
+        show(p)
+    else:
+        return p
     
 
 def quick_bokeh(stcs, outfile='test.html'):
