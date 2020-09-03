@@ -78,19 +78,26 @@ class MastQuery(param.Parameterized):
         cols = req_cols + self.mast_col_choice.value
         return self.results[cols].show_in_notebook(display_length=10)
 
+    @param.depends('stcs')
+    def fetch_stcs(self):
+        return pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```')
+
     # Panel displays
-    def panel(self):
+    def panel(self, debug=False):
         title = pn.Row(pn.pane.Markdown('# Search MAST for Moving Targets'))
         row1 = pn.Row(self.obj_name, self.id_type)
         row2 = pn.Row(self.start_time, self.stop_time, self.time_step)
         button_row = pn.Row(self.param['ephem_button'], self.param['tap_button'])
-        mypanel = pn.Column(title, row1, row2, button_row,
-                            pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
-                                                              self.get_ephem)),
-                                    ('MAST Results', pn.Column(self.mast_col_choice,
-                                                               self.get_mast))
-                                    )
-                            )
+        output_tabs = pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
+                                                        self.get_ephem)),
+                              ('MAST Results', pn.Column(self.mast_col_choice,
+                                                         self.get_mast))
+                              )
+        if debug:
+            output_tabs.append(('Debug', self.fetch_stcs))
+        mypanel = pn.Column(title, pn.layout.Divider(),
+                            row1, row2, button_row,
+                            output_tabs)
         return mypanel
 
 
