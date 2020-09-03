@@ -3,6 +3,7 @@
 from bokeh.plotting import figure, output_file, show, output_notebook
 from polygon import parse_s_region
 from bokeh.models import Arrow, VeeHead
+from bokeh.models import HoverTool
 import matplotlib.pyplot as plt
 
 
@@ -19,7 +20,7 @@ def polygon_bokeh(stcs, display=True):
                        x_start=patch_xs[0], y_start=patch_ys[0], 
                        x_end=patch_xs[1], y_end=patch_ys[1]))
 
-    p.y_range.flipped = True
+    p.x_range.flipped = True
 
     if display:
         output_notebook()
@@ -53,3 +54,22 @@ def quick_plot(stcs):
     for i in range(len(patch_xs)):
         ax.text(patch_xs[i], patch_ys[i], str(i))
     plt.show()
+
+
+def mast_bokeh(eph, mast_results, display=False):
+    # Function to produce a Bokeh plot of MAST results with the target path
+
+    p = figure(plot_width=700, x_axis_label="RA (deg)", y_axis_label="Dec (deg)")
+
+    eph_data = {'eph_x': eph['RA'], 'eph_y': eph['DEC'], 'Date': eph['datetime_str']}
+    eph_plot1 = p.line(x='eph_x', y='eph_y', source=eph_data, line_width=2)
+    eph_plot2 = p.circle(x='eph_x', y='eph_y', source=eph_data, fill_color="white")
+    p.add_tools(HoverTool(renderers=[eph_plot1, eph_plot2], tooltips=[('Date', "@Date")]))
+
+    p.x_range.flipped = True
+
+    if display:
+        output_notebook()
+        show(p)
+    else:
+        return p

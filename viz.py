@@ -4,7 +4,7 @@ import panel as pn
 import param
 from mast_tap import run_tap_query, clean_up_results
 from target import get_path, convert_path_to_polygon
-from plotting import polygon_bokeh
+from plotting import polygon_bokeh, mast_bokeh
 
 
 class MastQuery(param.Parameterized):
@@ -68,7 +68,7 @@ class MastQuery(param.Parameterized):
     @param.depends('tap_button')
     def get_mast(self):
         if self.eph is None or self.stcs is None:
-            return pn.pane.Markdown('## Fetch an ephemerides first and then run the query.')
+            return pn.pane.Markdown('## Fetch an ephemerides first and then run the MAST query.')
         start_time = min(self.eph['datetime_jd']) - 2400000.5
         end_time = max(self.eph['datetime_jd']) - 2400000.5
         temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time, maxrec=100)
@@ -87,16 +87,24 @@ class MastQuery(param.Parameterized):
         return pn.Column(pn.pane.Markdown(f'STCS Polygon:  \n```{self.stcs}```'),
                          pn.pane.Bokeh(p))
 
+    @param.depends('stcs', 'results')
+    def mast_figure(self):
+        if self.eph is None or self.results is None:
+            return pn.pane.Markdown('## Fetch an ephemerides first and then run the MAST query.')
+        p = mast_bokeh(self.eph, self.results, display=False)
+        return pn.pane.Bokeh(p)
+
     # Panel displays
     def panel(self, debug=False):
-        title = pn.Row(pn.pane.Markdown('# Search MAST for Moving Targets'))
+        title = pn.pane.Markdown('# Search MAST for Moving Targets')
         row1 = pn.Row(self.obj_name, self.id_type)
         row2 = pn.Row(self.start_time, self.stop_time, self.time_step)
         button_row = pn.Row(self.param['ephem_button'], self.param['tap_button'])
         output_tabs = pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
                                                         self.get_ephem)),
                               ('MAST Results', pn.Column(self.mast_col_choice,
-                                                         self.get_mast))
+                                                         self.get_mast)),
+                              ('MAST Plot', self.mast_figure)
                               )
         if debug:
             output_tabs.append(('Debug', self.fetch_stcs))
