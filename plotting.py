@@ -64,8 +64,8 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
 
     # Target path
     eph_data = {'eph_x': eph['RA'], 'eph_y': eph['DEC'], 'Date': eph['datetime_str']}
-    eph_plot1 = p.line(x='eph_x', y='eph_y', source=eph_data, line_width=2)
-    eph_plot2 = p.circle(x='eph_x', y='eph_y', source=eph_data, fill_color="white")
+    eph_plot1 = p.line(x='eph_x', y='eph_y', source=eph_data, line_width=2, line_color='black')
+    eph_plot2 = p.circle(x='eph_x', y='eph_y', source=eph_data, fill_color="black", size=12)
     p.add_tools(HoverTool(renderers=[eph_plot1, eph_plot2], tooltips=[('Date', "@Date")]))
 
     # Target footprint
@@ -74,7 +74,7 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
 
     stcs_data = {'stcs_x': [patch_xs], 'stcs_y': [patch_ys]}
     p.patches('stcs_x', 'stcs_y', source=stcs_data, fill_alpha=0., line_color="grey", line_width=0.8,
-              line_dash='dashed')
+              line_dash='dashed', legend='Search Area')
 
     # Prepare MAST footprints
     obsDF = mast_results.to_pandas()
