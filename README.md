@@ -24,11 +24,12 @@ conda activate moving-mast
 
 Either start a Jupyter notebook and load DemoInterface2.ipynb
 
-Or from the terminal run:
+Or from a terminal run:
 ```bash
 panel serve --show DemoInterface2.ipynb
 ```
 
 ### Heroku deploy
 
-To access the heroku deployment navigate to http://movingmast.herokuapp.com
+To access the heroku deployment navigate to https://movingmast.herokuapp.com   
+Note that Heroku can take a few minutes to start the app for the first time.
