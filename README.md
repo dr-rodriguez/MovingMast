@@ -22,14 +22,18 @@ conda activate moving-mast
 
 ### Run it
 
-Either start a Jupyter notebook and load DemoInterface2.ipynb
+Either start a Jupyter notebook and load either DemoInterface2.ipynb or MastDashboard.ipynb
 
 Or from a terminal run:
 ```bash
-panel serve --show DemoInterface2.ipynb
+panel serve --show MastDashboard.ipynb
 ```
 
-### Heroku deploy
+### Web deploy
 
-To access the heroku deployment navigate to https://movingmast.herokuapp.com   
-Note that Heroku can take a few minutes to start the app for the first time.
+You can also launch the notebook with binder:
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dr-rodriguez/MovingMast/main?filepath=DemoInterface2.ipynb)
+
+There is also a Heroku which you can access at https://movingmast.herokuapp.com   
+
+Note that these web deploys can take a few minutes to start up for the first time.

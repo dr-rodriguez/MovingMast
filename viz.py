@@ -11,6 +11,7 @@ class MastQuery(param.Parameterized):
 
     def __init__(self, data_tables=False):
         self.data_tables = data_tables
+        self.width = 900
         if data_tables:
             self.script = """
             <script>
@@ -230,19 +231,19 @@ class MastQuery(param.Parameterized):
         row2 = pn.Row(self.start_time, self.stop_time)
         button_row = pn.Row(self.param['full_run'])
         output_tabs = pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
-                                                        self.get_ephem, width=900, sizing_mode='stretch_width')),
+                                                        self.get_ephem, width=self.width, sizing_mode='stretch_width')),
                               ('MAST Results', pn.Column(self.mast_col_choice,
-                                                         self.get_mast, width=900, sizing_mode='stretch_width')),
+                                                         self.get_mast, width=self.width, sizing_mode='stretch_width')),
                               ('MAST Plot', self.mast_figure),
                               ('MAST Files', pn.Column(self.obs_ids, self.product_col_choice,
                                                        self.param['product_button'],
-                                                       self.get_products, width=900, sizing_mode='stretch_width')),
+                                                       self.get_products, width=self.width, sizing_mode='stretch_width')),
                               ('Additional Parameters', self.additional_parameters)
                               )
         if debug:
             output_tabs.append(('Debug', pn.Column(self.param['ephem_button'],
                                                    self.param['tap_button'],
-                                                   self.fetch_stcs, width=900, sizing_mode='stretch_width')
+                                                   self.fetch_stcs, width=self.width, sizing_mode='stretch_width')
                                 )
                                )
 
