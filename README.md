@@ -37,3 +37,7 @@ You can also launch the notebook with binder:
 There is also a Heroku which you can access at https://movingmast.herokuapp.com   
 
 Note that these web deploys can take a few minutes to start up for the first time.
+
+### Contributors
+
+David Rodriguez, Clara Brasseur, Uday Ghosh, Malena Rice, Mariia Demianenko, Kevin Ortiz
