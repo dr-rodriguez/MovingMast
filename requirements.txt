@@ -1,0 +1,10 @@
+jupyter
+notebook
+astropy=4.0
+bokeh
+matplotlib
+panel
+pandas
+astroquery
+regions
+pyvo
