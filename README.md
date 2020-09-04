@@ -41,3 +41,11 @@ Note that these web deploys can take a few minutes to start up for the first tim
 ### Contributors
 
 David Rodriguez, Clara Brasseur, Uday Ghosh, Malena Rice, Mariia Demianenko, Kevin Ortiz
+
+### Figures
+
+Main interface:
+![](images/gui_1.png)
+
+Example Bokeh plot:
+![](images/bokeh_1.png)
