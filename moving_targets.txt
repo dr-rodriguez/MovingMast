@@ -29,3 +29,12 @@ Jupiter: 5          1995-07-17 1995-07-30  # HST, HLA, IUE
 (15820) 1994 TB		TESS: 11/02/19 - 11/27/19
 (24835) 1995 SM55	TESS: 11/02/19 - 11/27/19
 (24952) 1997 QJ4	TESS: 11/02/19 - 11/27/19
+
+
+# K2 Moving Targets (JPL Horizons code for Kepler spacecraft: 500@-27)
+(2060)  Chiron          K2: 12/15/16 - 03/04/17
+183P/Korlevic-Juric     K2: 03/01/18 - 05/08/18
+235P/LINEAR             K2: 03/01/18 - 05/08/18
+(422)   Berolina        K2: 03/01/18 - 05/08/18
+(223)   Rosa            K2: 03/01/18 - 05/08/18
+(99942) Apophis         K2: 05/12/18 - 07/02/18
