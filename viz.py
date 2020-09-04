@@ -37,7 +37,7 @@ class MastQuery(param.Parameterized):
     mission = pn.widgets.TextInput(name="Comma-separated mission filter (Default of None=all missions)", value='None')
     radius = pn.widgets.TextInput(name="Footprint radius/width (degrees)", value='0.0083')
     location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
-    obs_ids = pn.widgets.TextInput(name="Observations to search files for (obs_id)", value='')
+    obs_ids = pn.widgets.TextInput(name="Comma-separated observations to search files for (obs_id)", value='')
     time_check = pn.widgets.Checkbox(name="Perform hard time cuts (can remove valid matches)", value=False)
 
     # Column selector
