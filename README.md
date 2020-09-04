@@ -28,3 +28,7 @@ Or from the terminal run:
 ```bash
 panel serve --show DemoInterface2.ipynb
 ```
+
+### Heroku deploy
+
+To access the heroku deployment navigate to http://movingmast.herokuapp.com
