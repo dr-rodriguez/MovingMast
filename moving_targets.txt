@@ -1,10 +1,22 @@
 # Observable in both Kepler/K2 and TESS
 # These are main-belt asteroids and Jupiter Trojans
 # See Pal et al. 2020 (https://arxiv.org/pdf/2001.05822.pdf)
-# This can be checked for K2 using K2ephem 
+# Times can be checked for K2 using K2ephem 
 
 (24534) 2001 CX27	TESS: 07/25/18 - 08/22/18
 (24537) 2001 CB35	TESS: 07/25/18 - 08/22/18
 (42573) 1997 AN1	TESS: 02/02/19 - 02/28/19
 (45086) 1999 XE46	TESS: 07/25/18 - 08/22/18
 (65210) Stichius	TESS: 07/25/18 - 08/22/18
+
+# Distant solar system asteroids in TESS
+
+(90377) Sedna		TESS: 11/15/18 - 12/11/18
+	2015 BP519	TESS: 11/15/18 - 12/11/18
+	2007 TG422	TESS: 11/15/18 - 12/11/18
+	2002 TX300	TESS: 10/07/19 - 11/02/19
+(8405)	Asbolus		TESS: 11/27/19 - 12/24/19
+(19521) Chaos		TESS: 11/27/19 - 12/24/19
+(15820) 1994 TB		TESS: 11/02/19 - 11/27/19
+(24835) 1995 SM55	TESS: 11/02/19 - 11/27/19
+(24952) 1997 QJ4	TESS: 11/02/19 - 11/27/19
