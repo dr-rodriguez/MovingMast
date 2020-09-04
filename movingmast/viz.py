@@ -40,6 +40,8 @@ class MastQuery(param.Parameterized):
     location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
     obs_ids = pn.widgets.TextInput(name="Comma-separated observations to search files for (obs_id)", value='')
     time_check = pn.widgets.Checkbox(name="Perform hard time cuts (can remove valid matches)", value=False)
+    no_time = pn.widgets.Checkbox(name="Ignore time and additional position filters (will yield incorrect results)",
+                                  value=False)
 
     # Column selector
     eph_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC',
@@ -137,11 +139,15 @@ class MastQuery(param.Parameterized):
                 location = None
             if mission.lower() == 'none':
                 mission = None
-            temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
-                                         maxrec=maxrec, mission=mission)
-            self.results = clean_up_results(temp_results, obj_name=self.obj_name.value, orig_eph=self.eph,
-                                            id_type=self.id_type.value, location=location, radius=self.radius.value,
-                                            aggressive_check=self.time_check.value)
+            # Get MAST results, if the debug option for no time is on, it will not run the filtering step
+            if self.no_time.value:
+                self.results = run_tap_query(self.stcs, start_time=None, end_time=None, maxrec=maxrec, mission=mission)
+            else:
+                temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
+                                             maxrec=maxrec, mission=mission)
+                self.results = clean_up_results(temp_results, obj_name=self.obj_name.value, orig_eph=self.eph,
+                                                id_type=self.id_type.value, location=location, radius=self.radius.value,
+                                                aggressive_check=self.time_check.value)
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
 
@@ -244,6 +250,7 @@ class MastQuery(param.Parameterized):
         if debug:
             output_tabs.append(('Debug', pn.Column(self.param['ephem_button'],
                                                    self.param['tap_button'],
+                                                   self.no_time,
                                                    self.fetch_stcs, width=self.width, sizing_mode='stretch_width')
                                 )
                                )

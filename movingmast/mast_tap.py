@@ -16,6 +16,7 @@ def convert_stcs_for_adql(stcs):
         if elem == 'POLYGON': continue
         if elem == '': continue
         adql += f'{elem}, '
+        # adql += f'{elem if float(elem) < 180 else float(elem)-360}, '  # going from -180 to 180 for RA
     adql = adql[:-2] + ')'
     return adql
 

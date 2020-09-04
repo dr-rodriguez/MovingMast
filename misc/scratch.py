@@ -1,7 +1,7 @@
 
 from movingmast.target import get_path, convert_path_to_polygon
 from movingmast.polygon import parse_s_region
-from movingmast.mast_tap import run_tap_query, clean_up_results, get_files
+from movingmast.mast_tap import run_tap_query, clean_up_results, get_files, convert_stcs_for_adql
 
 location = None
 
@@ -23,6 +23,7 @@ times = {'start': '2015-08-20', 'stop': '2015-09-01', 'step': '1d'}
 
 eph = get_path(obj_name, id_type=id_type, times=times, location=location)
 stcs = convert_path_to_polygon(eph)
+print(convert_stcs_for_adql(stcs))
 
 # Mast results
 start_time = min(eph['datetime_jd']) - 2400000.5
