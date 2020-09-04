@@ -105,7 +105,8 @@ class MastQuery(param.Parameterized):
         except ValueError as e:
             return pn.pane.Markdown(f'{e}')
 
-        if len(self.eph) > 0:
+        # Display results, if available
+        if self.eph is not None and len(self.eph) > 0:
             cols = self.eph_col_choice.value
             if self.data_tables:
                 html = self.eph[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
@@ -133,20 +134,19 @@ class MastQuery(param.Parameterized):
                                          maxrec=maxrec, mission=mission)
             self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
                                             id_type=self.id_type.value, location=location)
-
-            # Don't try to make a table without data
-            if len(self.results) == 0:
-                return pn.pane.Markdown('No results found.')
-
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
 
-        cols = self.mast_col_choice.value
-        if self.data_tables:
-            html = self.results[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
-            return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+        # Display results, if available
+        if self.results is not None and len(self.results) > 0:
+            cols = self.mast_col_choice.value
+            if self.data_tables:
+                html = self.results[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
+                return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+            else:
+                return self.results[cols].show_in_notebook(display_length=10)
         else:
-            return self.results[cols].show_in_notebook(display_length=10)
+            return pn.pane.Markdown('No results found.')
 
     @param.depends('stcs')
     def fetch_stcs(self):
@@ -165,8 +165,9 @@ class MastQuery(param.Parameterized):
         if self.obs_ids.value is None or self.obs_ids.value == '':
             return pn.pane.Markdown(f'No observations selected.')
         file_list = get_files(self.results, self.obs_ids.value)
-        if file_list is not None and len(file_list) > 0:
 
+        # Display results, if available
+        if file_list is not None and len(file_list) > 0:
             cols = self.product_col_choice.value
             if self.data_tables:
                 # file_list['Download'] = [f'<a href="https://mast.stsci.edu/portal/api/' \
