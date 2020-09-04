@@ -30,7 +30,7 @@ filtered_results = clean_up_results(results, obj_name=obj_name, id_type=id_type,
 print(filtered_results)
 
 obs_id = 'odxc17r5q'
-file_list = get_files(filtered_results, obs_id)
+x = file_list = get_files(filtered_results, obs_id)
 
 t = filtered_results.copy()
 obs_list = obs_id.split(',')

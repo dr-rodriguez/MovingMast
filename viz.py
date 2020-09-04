@@ -8,6 +8,19 @@ from plotting import polygon_bokeh, mast_bokeh
 
 
 class MastQuery(param.Parameterized):
+
+    def __init__(self, data_tables=False):
+        self.data_tables = data_tables
+        if data_tables:
+            self.script = """
+            <script>
+            $(document).ready( function () {
+                $('table').DataTable();
+            } );
+            </script>
+            """
+        super().__init__()
+
     # Global variables
     eph = param.Parameter(default=None, doc="eph table")
     stcs = param.Parameter(default=None, doc="polygon")
@@ -27,27 +40,46 @@ class MastQuery(param.Parameterized):
     obs_ids = pn.widgets.TextInput(name="Observations to search files for (obs_id)", value='')
 
     # Column selector
-    eph_cols = ['solar_presence', 'flags', 'RA_app', 'DEC_app', 'RA_rate', 'DEC_rate', 'AZ', 'EL',
-               'AZ_rate', 'EL_rate', 'sat_X',
-               'sat_Y', 'sat_PANG', 'siderealtime', 'airmass', 'magextinct', 'V', 'surfbright', 'illumination',
-               'illum_defect', 'sat_sep', 'sat_vis', 'ang_width', 'PDObsLon', 'PDObsLat', 'PDSunLon',
-               'PDSunLat', 'SubSol_ang', 'SubSol_dist', 'NPole_ang', 'NPole_dist', 'EclLon', 'EclLat', 'r',
-               'r_rate', 'delta', 'delta_rate', 'lighttime', 'vel_sun', 'vel_obs', 'elong', 'elongFlag',
-               'alpha', 'lunar_elong', 'lunar_illum', 'sat_alpha', 'sunTargetPA', 'velocityPA',
-               'OrbPlaneAng', 'constellation', 'TDB-UT', 'ObsEclLon', 'ObsEclLat', 'NPole_RA', 'NPole_DEC',
-               'GlxLon', 'GlxLat', 'solartime', 'earth_lighttime', 'RA_3sigma', 'DEC_3sigma', 'SMAA_3sigma',
-               'SMIA_3sigma', 'Theta_3sigma', 'Area_3sigma', 'RSS_3sigma', 'r_3sigma', 'r_rate_3sigma',
-               'SBand_3sigma', 'XBand_3sigma', 'DoppDelay_3sigma', 'true_anom', 'hour_angle',
-               'alpha_true', 'PABLon', 'PABLat']
-    eph_col_choice = pn.widgets.MultiChoice(name="Choose Extra Columns", options=eph_cols)
+    eph_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC',
+                'solar_presence', 'flags', 'RA_app', 'DEC_app', 'RA_rate', 'DEC_rate', 'AZ', 'EL',
+                'AZ_rate', 'EL_rate', 'sat_X',
+                'sat_Y', 'sat_PANG', 'siderealtime', 'airmass', 'magextinct', 'V', 'surfbright', 'illumination',
+                'illum_defect', 'sat_sep', 'sat_vis', 'ang_width', 'PDObsLon', 'PDObsLat', 'PDSunLon',
+                'PDSunLat', 'SubSol_ang', 'SubSol_dist', 'NPole_ang', 'NPole_dist', 'EclLon', 'EclLat', 'r',
+                'r_rate', 'delta', 'delta_rate', 'lighttime', 'vel_sun', 'vel_obs', 'elong', 'elongFlag',
+                'alpha', 'lunar_elong', 'lunar_illum', 'sat_alpha', 'sunTargetPA', 'velocityPA',
+                'OrbPlaneAng', 'constellation', 'TDB-UT', 'ObsEclLon', 'ObsEclLat', 'NPole_RA', 'NPole_DEC',
+                'GlxLon', 'GlxLat', 'solartime', 'earth_lighttime', 'RA_3sigma', 'DEC_3sigma', 'SMAA_3sigma',
+                'SMIA_3sigma', 'Theta_3sigma', 'Area_3sigma', 'RSS_3sigma', 'r_3sigma', 'r_rate_3sigma',
+                'SBand_3sigma', 'XBand_3sigma', 'DoppDelay_3sigma', 'true_anom', 'hour_angle',
+                'alpha_true', 'PABLon', 'PABLat']
+    eph_col_choice = pn.widgets.MultiChoice(name="Choose columns",
+                                            options=eph_cols,
+                                            value=['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC'])
 
-    mast_cols = ['calib_level', 's_ra',
+    mast_cols = ['obs_id', 'obs_collection', 'target_name',
+                 'dataProduct_Type', 'instrument_name',
+                 'filters', 't_exptime', 'proposal_pi', 'calib_level', 's_ra',
                  's_dec', 't_min', 't_max', 'wavelength_region', 'em_min',
                  'em_max', 'target_classification', 'obs_title', 't_obs_release',
                  'proposal_id', 'proposal_type', 'project', 'sequence_number',
                  'provenance_name', 's_region', 'jpegURL', 'dataURL', 'dataRights', 'mtFlag',
                  'srcDen', 'intentType', 'obsID', 'objID', 't_mid', 'obs_mid_date', 'start_date', 'end_date']
-    mast_col_choice = pn.widgets.MultiChoice(name="Choose Extra Columns", options=mast_cols)
+    mast_col_choice = pn.widgets.MultiChoice(name="Choose columns",
+                                             options=mast_cols,
+                                             value=['obs_id', 'obs_collection', 'target_name',
+                                                    'dataProduct_Type', 'instrument_name',
+                                                    'filters', 't_exptime', 'proposal_pi'])
+
+    product_columns = ['obsID', 'obs_collection', 'dataproduct_type', 'obs_id', 'description', 'type',
+                       'dataURI', 'productType', 'productGroupDescription', 'productSubGroupDescription',
+                       'productDocumentationURL', 'project', 'prvversion', 'proposal_id',
+                       'productFilename', 'size', 'parent_obsid', 'dataRights']
+    product_col_choice = pn.widgets.MultiChoice(name="Choose columns",
+                                                options=product_columns,
+                                                value=['obs_id', 'obs_collection', 'productFilename',
+                                                       'dataproduct_type', 'productType',
+                                                       'productSubGroupDescription', 'description'])
 
     # Actions
     ephem_button = param.Action(lambda x: x.param.trigger('ephem_button'), label='Fetch Ephemerides')
@@ -67,14 +99,18 @@ class MastQuery(param.Parameterized):
             location = self.location.value
             if location.lower() == 'none':
                 location = None
-            req_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC']
-            cols = req_cols + self.eph_col_choice.value
+            cols = self.eph_col_choice.value
             self.eph = get_path(self.obj_name.value, times, id_type=self.id_type.value, location=location)
             self.stcs = convert_path_to_polygon(self.eph, radius=radius)
             self.results = None
         except ValueError as e:
             return pn.pane.Markdown(f'{e}')
-        return self.eph[cols].show_in_notebook(display_length=10)
+
+        if self.data_tables:
+            html = self.eph[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
+            return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+        else:
+            return self.eph[cols].show_in_notebook(display_length=10)
 
     @param.depends('tap_button')
     def get_mast(self):
@@ -94,12 +130,15 @@ class MastQuery(param.Parameterized):
                                          maxrec=maxrec, mission=mission)
             self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
                                             id_type=self.id_type.value, location=location)
-            req_cols = ['obs_id', 'obs_collection', 'target_name', 'dataProduct_Type', 'instrument_name',
-                        'filters', 't_exptime', 'proposal_pi']
-            cols = req_cols + self.mast_col_choice.value
+            cols = self.mast_col_choice.value
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
-        return self.results[cols].show_in_notebook(display_length=10)
+
+        if self.data_tables:
+            html = self.results[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
+            return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+        else:
+            return self.results[cols].show_in_notebook(display_length=10)
 
     @param.depends('stcs')
     def fetch_stcs(self):
@@ -119,7 +158,18 @@ class MastQuery(param.Parameterized):
             return pn.pane.Markdown(f'No observations selected.')
         file_list = get_files(self.results, self.obs_ids.value)
         if file_list is not None and len(file_list) > 0:
-            return file_list.show_in_notebook(display_length=10)
+
+            cols = self.product_col_choice.value
+            if self.data_tables:
+
+                # file_list['Download'] = [f'<a href="https://mast.stsci.edu/portal/api/' \
+                #                          f'v0.1/Download/file?uri={x}">Download</a>'
+                #                          for x in file_list['dataURI']]
+                # cols = ['Download'] + cols
+                html = file_list[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
+                return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+            else:
+                return file_list[cols].show_in_notebook(display_length=10)
         else:
             return pn.pane.Markdown(f'No results found.')
 
@@ -140,18 +190,18 @@ class MastQuery(param.Parameterized):
         return pn.Column(self.max_rec, self.mission, self.radius, self.location)
 
     def panel(self, debug=False):
-
         title = pn.pane.Markdown('# Search MAST for Moving Targets')
         row1 = pn.Row(self.obj_name, self.id_type)
         row2 = pn.Row(self.start_time, self.stop_time, self.time_step)
         button_row = pn.Row(self.param['ephem_button'], self.param['tap_button'])
         output_tabs = pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
-                                                        self.get_ephem)),
+                                                        self.get_ephem, width=900, sizing_mode='stretch_width')),
                               ('MAST Results', pn.Column(self.mast_col_choice,
-                                                         self.get_mast)),
+                                                         self.get_mast, width=900, sizing_mode='stretch_width')),
                               ('MAST Plot', self.mast_figure),
-                              ('MAST Files', pn.Column(self.obs_ids, self.param['product_button'],
-                                                       self.get_products)),
+                              ('MAST Files', pn.Column(self.obs_ids, self.product_col_choice,
+                                                       self.param['product_button'],
+                                                       self.get_products, width=900, sizing_mode='stretch_width')),
                               ('Additional Parameters', self.additional_parameters)
                               )
         if debug:
