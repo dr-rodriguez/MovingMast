@@ -99,18 +99,21 @@ class MastQuery(param.Parameterized):
             location = self.location.value
             if location.lower() == 'none':
                 location = None
-            cols = self.eph_col_choice.value
             self.eph = get_path(self.obj_name.value, times, id_type=self.id_type.value, location=location)
             self.stcs = convert_path_to_polygon(self.eph, radius=radius)
             self.results = None
         except ValueError as e:
             return pn.pane.Markdown(f'{e}')
 
-        if self.data_tables:
-            html = self.eph[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
-            return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+        if len(self.eph) > 0:
+            cols = self.eph_col_choice.value
+            if self.data_tables:
+                html = self.eph[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
+                return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
+            else:
+                return self.eph[cols].show_in_notebook(display_length=10)
         else:
-            return self.eph[cols].show_in_notebook(display_length=10)
+            return pn.pane.Markdown('No results found.')
 
     @param.depends('tap_button')
     def get_mast(self):
@@ -130,10 +133,15 @@ class MastQuery(param.Parameterized):
                                          maxrec=maxrec, mission=mission)
             self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
                                             id_type=self.id_type.value, location=location)
-            cols = self.mast_col_choice.value
+
+            # Don't try to make a table without data
+            if len(self.results) == 0:
+                return pn.pane.Markdown('No results found.')
+
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
 
+        cols = self.mast_col_choice.value
         if self.data_tables:
             html = self.results[cols].to_pandas().to_html(index=False, classes=['table', 'panel-df'])
             return pn.pane.HTML(html + self.script, sizing_mode='stretch_width')
@@ -161,7 +169,6 @@ class MastQuery(param.Parameterized):
 
             cols = self.product_col_choice.value
             if self.data_tables:
-
                 # file_list['Download'] = [f'<a href="https://mast.stsci.edu/portal/api/' \
                 #                          f'v0.1/Download/file?uri={x}">Download</a>'
                 #                          for x in file_list['dataURI']]
@@ -171,7 +178,7 @@ class MastQuery(param.Parameterized):
             else:
                 return file_list[cols].show_in_notebook(display_length=10)
         else:
-            return pn.pane.Markdown(f'No results found.')
+            return pn.pane.Markdown('No results found.')
 
     @param.depends('eph', 'stcs', 'results')
     def mast_figure(self):
