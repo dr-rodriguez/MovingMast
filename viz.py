@@ -213,11 +213,15 @@ class MastQuery(param.Parameterized):
         in the [MAST archive](https://mast.stsci.edu/). 
         
         Here are some interesting examples:  
+        <br>
         
-        |  Target   | Start Date | End Date | Type |
-        |-----------|------------|----------|------|
-        | (5) Jupiter | 1995-07-17 | 1995-07-30 | majorbody |
-        | (42573) 1997 AN1 | 2019-02-02 | 2019-02-28 | smallbody |
+        |  Target  | Start Date &nbsp; &nbsp; &nbsp; | End Date &nbsp; &nbsp; &nbsp; | Type |
+        |:---:|:---:|:---:|:---:|
+        | (5) Jupiter | 1995-07-17 | 1995-07-30 | majorbody &nbsp; &nbsp; |
+        | (42573) 1997 AN1 | 2019-02-02 | 2019-02-28 | smallbody &nbsp; &nbsp; |
+        
+        <br>
+        Find the code for this on [GitHub](https://github.com/dr-rodriguez/MovingMast)
         
         ![](https://img.shields.io/badge/Made%20at-%23AstroHackWeek-8063d5.svg?style=flat)
         """
