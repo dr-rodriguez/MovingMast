@@ -86,7 +86,30 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     return t
 
 
-def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radius=0.0083):
+def _detail_check(eph, polygon_pix, observation_coords, start_date, end_date, radius=0.0083):
+    # A more detailed check for polygon footprint matching.
+    # This checks each location in the original ephemerides and confirms if an observation intersects it
+
+    flag = False
+    for row in eph:
+        # if ((row['datetime_jd'] - 2400000.5) > end_date) or ((row['datetime_jd'] - 2400000.5) < start_date):
+        #     flag = False
+        #     continue
+
+        target_coords = PixCoord(row['RA'], row['DEC'])
+        if radius is None or radius < 0 and observation_coords is not None:
+            flag = target_coords in polygon_pix
+        else:
+            target_circle = CirclePixelRegion(center=target_coords, radius=radius)
+            flag = (target_coords in polygon_pix) or (observation_coords in target_circle)
+
+        if flag:
+            break
+
+    return flag
+
+
+def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', location=None, radius=0.0083):
     """
     Function to clean up results. Will check if the target is inside the observation footprint.
     If a radius is provided, will also construct a circle and check if the observation center is in the target circle.
@@ -99,6 +122,9 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
     obj_name: str
         Object name. May require specific formatting (i.e. selecting between
        the codes for Jupiter and Jupiter barycenter). See JPL Horizons documentation
+
+    orig_eph: astropy Table
+        Original ephemerides table
 
     id_type: str
         Object ID type for JPL Horizons. Defaults to smallbody (an asteroid or comet).
@@ -162,13 +188,15 @@ def clean_up_results(t_init, obj_name, id_type='smallbody', location=None, radiu
             ys = stcs['dec']
             polygon_pix = PolygonPixelRegion(vertices=PixCoord(x=xs, y=ys))
             target_coords = PixCoord(eph['RA'][i], eph['DEC'][i])
-            if radius is None or radius <= 0:
+            observation_coords = PixCoord(row['s_ra'], row['s_dec'])
+            if radius is None or radius < 0:
                 flag = target_coords in polygon_pix
             else:
                 target_circle = CirclePixelRegion(center=target_coords, radius=radius)
-                observation_coords = PixCoord(row['s_ra'], row['s_dec'])
                 flag = (target_coords in polygon_pix) or (observation_coords in target_circle)
-            # print(stcs, flag)
+            if orig_eph is not None and not flag:
+                flag = _detail_check(orig_eph, polygon_pix, observation_coords, row['t_max'], row['t_min'], radius)
+            # print(row['obs_id'], flag)
         except Exception as e:
             print(f"ERROR checking footprint for {row['obs_id']} with: {e}"
                   f"\nAssuming False")

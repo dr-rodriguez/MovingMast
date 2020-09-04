@@ -3,7 +3,7 @@
 import panel as pn
 import param
 from mast_tap import run_tap_query, clean_up_results, get_files
-from target import get_path, convert_path_to_polygon
+from target import get_path, convert_path_to_polygon, check_times
 from plotting import polygon_bokeh, mast_bokeh
 
 
@@ -94,6 +94,10 @@ class MastQuery(param.Parameterized):
             self.stcs = None
             return pn.pane.Markdown('Provide the name or identifier of an object to search for.')
         times = {'start': self.start_time.value, 'stop': self.stop_time.value, 'step': self.time_step.value}
+        if not check_times(times, maximum_date_range=30):
+            self.eph = None
+            self.stcs = None
+            return pn.pane.Markdown('Invalid date strings (Year-month-day) or time range exceeds maximum (30 days).')
         try:
             radius = float(self.radius.value)
             location = self.location.value
@@ -132,7 +136,7 @@ class MastQuery(param.Parameterized):
                 mission = None
             temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
                                          maxrec=maxrec, mission=mission)
-            self.results = clean_up_results(temp_results, obj_name=self.obj_name.value,
+            self.results = clean_up_results(temp_results, obj_name=self.obj_name.value, orig_eph=self.eph,
                                             id_type=self.id_type.value, location=location)
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
