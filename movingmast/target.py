@@ -1,7 +1,7 @@
 # Functions to handle the moving target
 
 from astroquery.jplhorizons import Horizons
-from polygon import check_direction, reverse_direction
+from .polygon import check_direction, reverse_direction
 import time
 from datetime import timedelta, datetime
 

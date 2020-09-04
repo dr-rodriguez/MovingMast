@@ -1,7 +1,7 @@
 
-from target import get_path, convert_path_to_polygon
-from polygon import parse_s_region
-from mast_tap import run_tap_query, clean_up_results, get_files
+from movingmast.target import get_path, convert_path_to_polygon
+from movingmast.polygon import parse_s_region
+from movingmast.mast_tap import run_tap_query, clean_up_results, get_files
 
 location = None
 
@@ -30,17 +30,7 @@ filtered_results = clean_up_results(results, obj_name=obj_name, id_type=id_type,
 print(filtered_results)
 
 obs_id = 'odxc17r5q'
-x = file_list = get_files(filtered_results, obs_id)
-
-t = filtered_results.copy()
-obs_list = obs_id.split(',')
-mask = [x.decode() in obs_list for x in t['obs_id']]
-# mask = [x in t['obs_id'] for x in obs_list]
-t = t[mask]
-data_products_by_id = Observations.get_product_list(t['obsID'].astype(str))
-
-
-Observations.get_product_list(t_init[[x in obs_list for x in t_init["obs_id"]]])
+data_products_by_id = file_list = get_files(filtered_results, obs_id)
 
 
 # Using regions

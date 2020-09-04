@@ -5,7 +5,7 @@ import warnings
 from astropy.time import Time
 from astroquery.jplhorizons import Horizons
 from regions import PixCoord, PolygonPixelRegion, CirclePixelRegion
-from polygon import parse_s_region
+from .polygon import parse_s_region
 from astroquery.mast import Observations
 warnings.simplefilter('ignore')  # block out warnings
 

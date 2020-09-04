@@ -1,7 +1,7 @@
 # Functions to handle plotting
 
+from .polygon import parse_s_region
 from bokeh.plotting import figure, output_file, show, output_notebook
-from polygon import parse_s_region
 from bokeh.layouts import column
 from bokeh.models import Arrow, VeeHead, HoverTool, Slider
 from bokeh.palettes import Spectral7 as palette

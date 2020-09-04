@@ -2,9 +2,9 @@
 
 import panel as pn
 import param
-from mast_tap import run_tap_query, clean_up_results, get_files
-from target import get_path, convert_path_to_polygon, check_times
-from plotting import polygon_bokeh, mast_bokeh
+from movingmast.mast_tap import run_tap_query, clean_up_results, get_files
+from movingmast.target import get_path, convert_path_to_polygon, check_times
+from movingmast.plotting import polygon_bokeh, mast_bokeh
 
 
 class MastQuery(param.Parameterized):
