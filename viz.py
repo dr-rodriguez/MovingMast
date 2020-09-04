@@ -30,7 +30,7 @@ class MastQuery(param.Parameterized):
     obj_name = pn.widgets.TextInput(name="Object Name or Specification", value='')
     start_time = pn.widgets.TextInput(name="Start Time", value='1995-07-17')
     stop_time = pn.widgets.TextInput(name="Stop Time", value='1995-07-30')
-    time_step = pn.widgets.TextInput(name="Time Step", value='1d')
+    time_step = pn.widgets.TextInput(name="Time Step (eg, 12h, 1d)", value='1d')
     id_type = pn.widgets.Select(name='Object Type', options=['majorbody', 'smallbody', 'asteroid_name',
                                                              'comet_name', 'name', 'designation'])
     max_rec = pn.widgets.TextInput(name="Maximum number of MAST records", value='200')
@@ -38,6 +38,7 @@ class MastQuery(param.Parameterized):
     radius = pn.widgets.TextInput(name="Footprint radius/width (degrees)", value='0.0083')
     location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
     obs_ids = pn.widgets.TextInput(name="Observations to search files for (obs_id)", value='')
+    time_check = pn.widgets.Checkbox(name="Perform hard time cuts (can remove valid matches)", value=False)
 
     # Column selector
     eph_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC',
@@ -85,9 +86,10 @@ class MastQuery(param.Parameterized):
     ephem_button = param.Action(lambda x: x.param.trigger('ephem_button'), label='Fetch Ephemerides')
     tap_button = param.Action(lambda x: x.param.trigger('tap_button'), label='Fetch MAST Results')
     product_button = param.Action(lambda x: x.param.trigger('product_button'), label='Fetch MAST Files')
+    full_run = param.Action(lambda x: x.param.trigger('full_run'), label='Search MAST')
 
     # Callback functions
-    @param.depends('ephem_button')
+    @param.depends('ephem_button', 'full_run')
     def get_ephem(self):
         if self.obj_name.value == '':
             self.eph = None
@@ -120,7 +122,7 @@ class MastQuery(param.Parameterized):
         else:
             return pn.pane.Markdown('No results found.')
 
-    @param.depends('tap_button')
+    @param.depends('tap_button', 'full_run')
     def get_mast(self):
         if self.eph is None or self.stcs is None:
             return pn.pane.Markdown('Fetch ephemerides first and then run the MAST query.')
@@ -137,7 +139,8 @@ class MastQuery(param.Parameterized):
             temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
                                          maxrec=maxrec, mission=mission)
             self.results = clean_up_results(temp_results, obj_name=self.obj_name.value, orig_eph=self.eph,
-                                            id_type=self.id_type.value, location=location)
+                                            id_type=self.id_type.value, location=location, radius=self.radius.value,
+                                            aggressive_check=self.time_check.value)
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
 
@@ -199,13 +202,13 @@ class MastQuery(param.Parameterized):
 
     # Panel displays
     def additional_parameters(self):
-        return pn.Column(self.max_rec, self.mission, self.radius, self.location)
+        return pn.Column(self.time_step, self.max_rec, self.mission, self.radius, self.location, self.time_check)
 
     def panel(self, debug=False):
         title = pn.pane.Markdown('# Search MAST for Moving Targets')
         row1 = pn.Row(self.obj_name, self.id_type)
-        row2 = pn.Row(self.start_time, self.stop_time, self.time_step)
-        button_row = pn.Row(self.param['ephem_button'], self.param['tap_button'])
+        row2 = pn.Row(self.start_time, self.stop_time)
+        button_row = pn.Row(self.param['full_run'])
         output_tabs = pn.Tabs(('Ephemerides', pn.Column(self.eph_col_choice,
                                                         self.get_ephem, width=900, sizing_mode='stretch_width')),
                               ('MAST Results', pn.Column(self.mast_col_choice,
@@ -217,7 +220,11 @@ class MastQuery(param.Parameterized):
                               ('Additional Parameters', self.additional_parameters)
                               )
         if debug:
-            output_tabs.append(('Debug', self.fetch_stcs))
+            output_tabs.append(('Debug', pn.Column(self.param['ephem_button'],
+                                                   self.param['tap_button'],
+                                                   self.fetch_stcs, width=900, sizing_mode='stretch_width')
+                                )
+                               )
 
         # gspec = pn.GridSpec(sizing_mode='stretch_both')
         # gspec[:1, :3] = title

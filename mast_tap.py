@@ -86,15 +86,16 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
     return t
 
 
-def _detail_check(eph, polygon_pix, observation_coords, start_date, end_date, radius=0.0083):
+def _detail_check(eph, polygon_pix, observation_coords, start_date, end_date, radius=0.0083, aggressive_check=False):
     # A more detailed check for polygon footprint matching.
     # This checks each location in the original ephemerides and confirms if an observation intersects it
 
     flag = False
     for row in eph:
-        # if ((row['datetime_jd'] - 2400000.5) > end_date) or ((row['datetime_jd'] - 2400000.5) < start_date):
-        #     flag = False
-        #     continue
+        if aggressive_check:
+            if ((row['datetime_jd'] - 2400000.5) > end_date) or ((row['datetime_jd'] - 2400000.5) < start_date):
+                flag = False
+                continue
 
         target_coords = PixCoord(row['RA'], row['DEC'])
         if radius is None or radius < 0 and observation_coords is not None:
@@ -109,7 +110,8 @@ def _detail_check(eph, polygon_pix, observation_coords, start_date, end_date, ra
     return flag
 
 
-def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', location=None, radius=0.0083):
+def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', location=None, radius=0.0083,
+                     aggressive_check=False):
     """
     Function to clean up results. Will check if the target is inside the observation footprint.
     If a radius is provided, will also construct a circle and check if the observation center is in the target circle.
@@ -146,8 +148,11 @@ def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', locat
        Hubble: @hst
        Kepler: 500@-227
 
-    radius : float
+    radius: float
         Size of target for intersection calculations
+
+    aggressive_check: bool
+        Perform additional time checks; can remove valid observations (Default: False)
 
     Returns
     -------
@@ -157,6 +162,9 @@ def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', locat
 
     if len(t_init) == 0:
         return None
+
+    if radius is not None and not isinstance(radius, float):
+        radius = float(radius)
 
     t = t_init.copy()
 
@@ -195,7 +203,9 @@ def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', locat
                 target_circle = CirclePixelRegion(center=target_coords, radius=radius)
                 flag = (target_coords in polygon_pix) or (observation_coords in target_circle)
             if orig_eph is not None and not flag:
-                flag = _detail_check(orig_eph, polygon_pix, observation_coords, row['t_max'], row['t_min'], radius)
+                flag = _detail_check(orig_eph, polygon_pix, observation_coords,
+                                     start_date=row['t_min'], end_date=row['t_max'],
+                                     radius=radius, aggressive_check=aggressive_check)
             # print(row['obs_id'], flag)
         except Exception as e:
             print(f"ERROR checking footprint for {row['obs_id']} with: {e}"
