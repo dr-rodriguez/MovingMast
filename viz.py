@@ -205,7 +205,23 @@ class MastQuery(param.Parameterized):
         return pn.Column(self.time_step, self.max_rec, self.mission, self.radius, self.location, self.time_check)
 
     def panel(self, debug=False):
-        title = pn.pane.Markdown('# Search MAST for Moving Targets')
+        title = pn.pane.Markdown("""
+        # Search MAST for Moving Targets  
+        
+        This uses the [JPL Horizons service](https://ssd.jpl.nasa.gov/horizons.cgi) to resolve the target to 
+        generate an ephemerides that will be used to query for observations 
+        in the [MAST archive](https://mast.stsci.edu/). 
+        
+        Here are some interesting examples:  
+        
+        |  Target   | Start Date | End Date | Type |
+        |-----------|------------|----------|------|
+        | (5) Jupiter | 1995-07-17 | 1995-07-30 | majorbody |
+        | (42573) 1997 AN1 | 2019-02-02 | 2019-02-28 | smallbody |
+        
+        ![](https://img.shields.io/badge/Made%20at-%23AstroHackWeek-8063d5.svg?style=flat)
+        """
+                                 )
         row1 = pn.Row(self.obj_name, self.id_type)
         row2 = pn.Row(self.start_time, self.stop_time)
         button_row = pn.Row(self.param['full_run'])
