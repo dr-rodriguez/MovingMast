@@ -16,17 +16,22 @@ id_type = 'majorbody'
 times = {'start': '2019-04-01', 'stop': '2019-04-10', 'step': '1d'}
 # times = {'start': '1997-07-10', 'stop': '1997-07-15', 'step': '12h'}
 
+#1143 Odysseus	2015-08-20  2015-09-01
+obj_name = '1143'
+id_type = 'smallbody'
+times = {'start': '2015-08-20', 'stop': '2015-09-01', 'step': '1d'}
+
 eph = get_path(obj_name, id_type=id_type, times=times, location=location)
 stcs = convert_path_to_polygon(eph)
 
 # Mast results
 start_time = min(eph['datetime_jd']) - 2400000.5
 end_time = max(eph['datetime_jd']) - 2400000.5
-# results = run_tap_query(stcs, start_time=None, end_time=None, maxrec=100)
-results = run_tap_query(stcs, start_time=start_time, end_time=end_time, maxrec=100)
+# results = run_tap_query(stcs, start_time=None, end_time=None, maxrec=200)
+results = run_tap_query(stcs, start_time=start_time, end_time=end_time, maxrec=200)
 print(results)
 
-filtered_results = clean_up_results(results, obj_name=obj_name, id_type=id_type, location=location)
+filtered_results = clean_up_results(results, obj_name=obj_name, orig_eph=eph, id_type=id_type, location=location)
 print(filtered_results)
 
 obs_id = 'odxc17r5q'

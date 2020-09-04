@@ -51,7 +51,8 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
             f"FROM dbo.ObsPointing " \
             f"WHERE 1=CONTAINS(POINT('ICRS', s_ra, s_dec), {convert_stcs_for_adql(stcs)}) "
     if start_time is not None:
-        query += f"AND t_min >= {start_time} and t_max <= {end_time} "
+        # query += f"AND t_min >= {start_time} and t_max <= {end_time} "
+        query += f"AND (t_min BETWEEN {start_time} AND {end_time}) OR (t_max BETWEEN {start_time} AND {end_time}) "
     if mission is not None:
         mission_list = mission.split(',')
         mission_string = ','.join([f"'{x}'" for x in mission_list])
