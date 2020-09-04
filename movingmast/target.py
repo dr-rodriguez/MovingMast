@@ -29,10 +29,13 @@ def check_times(times, maximum_date_range=30):
     if isinstance(times, float):
         return True
     elif isinstance(times, dict):
-        start = datetime.strptime(times['start'], '%Y-%m-%d')
-        stop = datetime.strptime(times['stop'], '%Y-%m-%d')
-        rang = stop - start
-        return rang <= timedelta(maximum_date_range)
+        try:
+            start = datetime.strptime(times['start'], '%Y-%m-%d')
+            stop = datetime.strptime(times['stop'], '%Y-%m-%d')
+            rang = stop - start
+            return rang <= timedelta(maximum_date_range)
+        except:
+            return False
     else:
         raise Exception("Sorry, enter time as float or dict")
 
