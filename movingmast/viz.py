@@ -2,7 +2,7 @@
 
 import panel as pn
 import param
-from movingmast.mast_tap import run_tap_query, clean_up_results, get_files
+from movingmast.mast_tap import run_tap_query, get_files
 from movingmast.target import get_path, convert_path_to_polygon, check_times
 from movingmast.plotting import polygon_bokeh, mast_bokeh
 
@@ -39,9 +39,7 @@ class MastQuery(param.Parameterized):
     radius = pn.widgets.TextInput(name="Footprint radius/width (degrees)", value='0.0083')
     location = pn.widgets.TextInput(name="User location (Default of None=geocentric)", value='None')
     obs_ids = pn.widgets.TextInput(name="Comma-separated observations to search files for (obs_id)", value='')
-    time_check = pn.widgets.Checkbox(name="Perform hard time cuts (can remove valid matches)", value=False)
-    no_time = pn.widgets.Checkbox(name="Ignore time and additional position filters (will yield incorrect results)",
-                                  value=False)
+    no_time = pn.widgets.Checkbox(name="Ignore time in MAST query (will yield incorrect results)", value=False)
 
     # Column selector
     eph_cols = ['targetname', 'datetime_str', 'datetime_jd', 'RA', 'DEC',
@@ -139,15 +137,13 @@ class MastQuery(param.Parameterized):
                 location = None
             if mission.lower() == 'none':
                 mission = None
-            # Get MAST results, if the debug option for no time is on, it will not run the filtering step
+            # Get MAST results, if the debug option for no time is on, it will include a time search
             if self.no_time.value:
                 self.results = run_tap_query(self.stcs, start_time=None, end_time=None, maxrec=maxrec, mission=mission)
             else:
-                temp_results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
+                self.results = run_tap_query(self.stcs, start_time=start_time, end_time=end_time,
                                              maxrec=maxrec, mission=mission)
-                self.results = clean_up_results(temp_results, obj_name=self.obj_name.value, orig_eph=self.eph,
-                                                id_type=self.id_type.value, location=location, radius=self.radius.value,
-                                                aggressive_check=self.time_check.value)
+                # Removing clean_up_results call: this was buggy and is removing valid results
         except Exception as e:
             return pn.pane.Markdown(f'{e}')
 
@@ -209,7 +205,7 @@ class MastQuery(param.Parameterized):
 
     # Panel displays
     def additional_parameters(self):
-        return pn.Column(self.time_step, self.max_rec, self.mission, self.radius, self.location, self.time_check)
+        return pn.Column(self.time_step, self.max_rec, self.mission, self.radius, self.location)
 
     def panel(self, debug=False):
         title = pn.pane.Markdown("""

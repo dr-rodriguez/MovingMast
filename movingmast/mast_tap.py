@@ -117,6 +117,10 @@ def clean_up_results(t_init, obj_name, orig_eph=None, id_type='smallbody', locat
     """
     Function to clean up results. Will check if the target is inside the observation footprint.
     If a radius is provided, will also construct a circle and check if the observation center is in the target circle.
+    TODO: This is a buggy for several reasons:
+          1- regions doesn't have intersection of polygons yet so valid observations are missed
+          2- the mid point for observations like TESS can be days away from the target location
+          3- the _detail_check function is effectively re-adding most of what it clears
 
     Parameters
     ----------
