@@ -223,6 +223,7 @@ class MastQuery(param.Parameterized):
         | (5) Jupiter | 1995-07-17 | 1995-07-30 | majorbody &nbsp; &nbsp; |
         | (42573) 1997 AN1 | 2019-02-02 | 2019-02-28 | smallbody &nbsp; &nbsp; |
         | (4) Mars | 1995-02-23 | 1995-02-28 | majorbody &nbsp; &nbsp; |
+        | (1143) Odysseus | 2015-08-20 | 2015-09-01 | smallbody &nbsp; &nbsp; |
         
         <br>
         Find the code for this on [GitHub](https://github.com/dr-rodriguez/MovingMast)

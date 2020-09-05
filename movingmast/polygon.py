@@ -50,7 +50,7 @@ def parse_s_region(s_region):
             except ValueError:
                 continue
             if counter % 2 == 0:
-                ra.append(value)
+                ra.append(value if value > 0 else value + 360)
             else:
                 dec.append(value)
             counter += 1
@@ -64,7 +64,7 @@ def parse_s_region(s_region):
             if counter % 2 == 1:
                 center_dec = value
             if center_ra is None and counter % 2 == 0:
-                center_ra = value
+                center_ra = value if value > 0 else value + 360
             else:
                 radius = value
             counter += 1

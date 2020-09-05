@@ -32,6 +32,7 @@ end_time = max(eph['datetime_jd']) - 2400000.5
 results = run_tap_query(stcs, start_time=start_time, end_time=end_time, maxrec=200)
 print(results)
 
+# clean_up_results is buggy!
 filtered_results = clean_up_results(results, obj_name=obj_name, orig_eph=eph, id_type=id_type, location=location)
 print(filtered_results)
 

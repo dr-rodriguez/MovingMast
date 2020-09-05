@@ -13,7 +13,6 @@ Jupiter: 5          1995-07-17 1995-07-30  # HST, HLA, IUE
 (24534) 2001 CX27	TESS: 2018-07-25 - 2018-08-22
 (65210) Stichius	TESS: 2018-07-25 - 2018-08-22  # requires location=@TESS
 
-# Issues with mast query (no results)
 (24537) 2001 CB35	TESS: 2018-07-25 - 2018-08-22
 (45086) 1999 XE46	TESS: 2018-07-25 - 2018-08-22
 
