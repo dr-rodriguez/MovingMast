@@ -16,7 +16,7 @@ id_type = 'majorbody'
 times = {'start': '2019-04-01', 'stop': '2019-04-10', 'step': '1d'}
 # times = {'start': '1997-07-10', 'stop': '1997-07-15', 'step': '12h'}
 
-#1143 Odysseus	2015-08-20  2015-09-01
+# 1143 Odysseus	2015-08-20  2015-09-01
 obj_name = '1143'
 id_type = 'smallbody'
 times = {'start': '2015-08-20', 'stop': '2015-09-01', 'step': '1d'}

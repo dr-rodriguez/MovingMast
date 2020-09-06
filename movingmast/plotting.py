@@ -3,7 +3,7 @@
 from .polygon import parse_s_region
 from bokeh.plotting import figure, output_file, show, output_notebook
 from bokeh.layouts import column
-from bokeh.models import Arrow, VeeHead, HoverTool, Slider
+from bokeh.models import Arrow, VeeHead, HoverTool, Slider, ColumnDataSource
 from bokeh.palettes import Spectral7 as palette
 import matplotlib.pyplot as plt
 
@@ -57,6 +57,35 @@ def quick_plot(stcs):
     plt.show()
 
 
+def _individual_plot_data(df):
+    # Generate individual patch information for each POLYGON of an observation, currently only for Kepler and K2
+
+    plot_data = []
+    for i, row in df.iterrows():
+        stcs_list = [f'POLYGON {s.strip()}' for s in row['s_region'].split('POLYGON') if s != '']
+        for stcs in stcs_list:
+            if 'CIRCLE' in stcs:
+                # Sometimes circles are in the data and get strings with 'POLYGON CIRCLE'
+                stcs = stcs.replace('POLYGON ', '')
+
+            # Add patches with the observation footprings
+            coords = parse_s_region(stcs)
+            patch_xs = [coords['ra']]
+            patch_ys = [coords['dec']]
+
+            data = ColumnDataSource({'x': patch_xs, 'y': patch_ys,
+                                     'obs_collection': [row['obs_collection']],
+                                     'instrument_name': [row['instrument_name']],
+                                     'obs_id': [row['obs_id']],
+                                     'target_name': [row['target_name']],
+                                     'proposal_pi': [row['proposal_pi']],
+                                     'obs_mid_date': [row['obs_mid_date']],
+                                     'filters': [row['filters']]})
+            plot_data.append(data)
+
+    return plot_data
+
+
 def mast_bokeh(eph, mast_results, stcs=None, display=False):
     # Function to produce a Bokeh plot of MAST results with the target path
 
@@ -90,16 +119,23 @@ def mast_bokeh(eph, mast_results, stcs=None, display=False):
     for mission, color in zip(obsDF['obs_collection'].unique(), palette):
         ind = obsDF['obs_collection'] == mission
 
-        # Add patches with the observation footprings
-        patch_xs = [c['ra'] for c in obsDF['coords'][ind]]
-        patch_ys = [c['dec'] for c in obsDF['coords'][ind]]
+        # Some missions have very complex STCS and need to be treated separately
+        if mission in ('Kepler', 'K2', 'K2FFI'):
+            plot_data = _individual_plot_data(obsDF[ind])
+            for data in plot_data:
+                mast_plots.append(p.patches('x', 'y', source=data, legend=mission,
+                                            fill_color=color, fill_alpha=0.3, line_color="white", line_width=0.5))
+        else:
+            # Add patches with the observation footprings
+            patch_xs = [c['ra'] for c in obsDF['coords'][ind]]
+            patch_ys = [c['dec'] for c in obsDF['coords'][ind]]
 
-        data = {'x': patch_xs, 'y': patch_ys, 'obs_collection': obsDF['obs_collection'][ind],
-                'instrument_name': obsDF['instrument_name'][ind], 'obs_id': obsDF['obs_id'][ind],
-                'target_name': obsDF['target_name'][ind], 'proposal_pi': obsDF['proposal_pi'][ind],
-                'obs_mid_date': obsDF['obs_mid_date'][ind], 'filters': obsDF['filters'][ind]}
-        mast_plots.append(p.patches('x', 'y', source=data, legend=mission,
-                                    fill_color=color, fill_alpha=0.3, line_color="white", line_width=0.5))
+            data = {'x': patch_xs, 'y': patch_ys, 'obs_collection': obsDF['obs_collection'][ind],
+                    'instrument_name': obsDF['instrument_name'][ind], 'obs_id': obsDF['obs_id'][ind],
+                    'target_name': obsDF['target_name'][ind], 'proposal_pi': obsDF['proposal_pi'][ind],
+                    'obs_mid_date': obsDF['obs_mid_date'][ind], 'filters': obsDF['filters'][ind]}
+            mast_plots.append(p.patches('x', 'y', source=data, legend=mission,
+                                        fill_color=color, fill_alpha=0.3, line_color="white", line_width=0.5))
 
     # Add hover tooltip for MAST observations
     tooltip = [("obs_id", "@obs_id"),
