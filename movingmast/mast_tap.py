@@ -22,7 +22,7 @@ def convert_stcs_for_adql(stcs):
 
 
 def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
-                  service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=100):
+                  service='http://vao.stsci.edu/CAOMTAP/TapService.aspx', maxrec=100, verbose=False):
     """
     Handler for TAP service.
 
@@ -40,6 +40,8 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
         Service to use (Default: STScI CAOMTAP)
     maxrec : int
         Number of records to return
+    verbose : bool
+        Flag to control verbosity of output messages. (Default: False)
 
     Returns
     -------
@@ -57,7 +59,8 @@ def run_tap_query(stcs, start_time=None, end_time=None, mission=None,
         mission_list = mission.split(',')
         mission_string = ','.join([f"'{x}'" for x in mission_list])
         query += f"AND obs_collection in ({mission_string}) "
-    print(query)
+    if verbose:
+        print(query)
 
     # TODO: Decide: Sync vs Async queries
     print('Querying MAST...')
