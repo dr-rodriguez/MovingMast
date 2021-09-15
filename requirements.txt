@@ -8,3 +8,4 @@ pandas
 astroquery
 regions
 pyvo
+shapely==1.7.1

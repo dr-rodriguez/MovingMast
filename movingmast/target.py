@@ -4,6 +4,7 @@ from astroquery.jplhorizons import Horizons
 from .polygon import check_direction, reverse_direction
 import time
 from datetime import timedelta, datetime
+from shapely.geometry import LineString
 
 
 def check_times(times, maximum_date_range=30):
@@ -96,20 +97,22 @@ def convert_path_to_polygon(eph, radius=0.0083):
     ----------
     eph
     radius : float
-        Width of path to build
+        Width of path to build in arcseconds
 
     Returns
     -------
-
+    stcs : str
+        Polygon constructed from path
     """
 
+    # Use shapely to better construct the polygon
+    path_tuple = [(row['RA'], row['DEC']) for row in eph]
+    path = LineString(path_tuple)
+    thick_path = path.buffer(distance=radius, resolution=8)
+    coords = thick_path.exterior.coords[:-1]
+
     stcs = 'POLYGON '
-    # Get first (upper) set of points
-    for row in eph:
-        stcs += f"{row['RA']} {row['DEC']-radius} "
-    # Work backwords for the second set of coordinates
-    for row in eph[::-1]:
-        stcs += f"{row['RA']} {row['DEC']+radius} "
+    stcs += ' '.join([f'{c[0]} {c[1]}' for c in coords])
 
     # Check winding direction, these need to be counter-clockwise
     if not check_direction(stcs):
